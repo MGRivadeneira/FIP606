@@ -1,0 +1,799 @@
+---
+title: "**FIP606-Proyecto:** Análisis Exploratorio" 
+
+format: html
+editor: visual
+output: 
+ distill::distill_article:
+      toc: true
+      toc_float: yes
+      code_folding: code
+      theme: theme.css
+      highlight: default
+      highlight_downlit: true
+      self_contained: true
+      
+date: "`r Sys.Date()`"
+---
+
+## **Preparación *Base de Datos***
+
+-   
+
+    #### ***Cargar paquetes de análisis***
+
+```{r}
+library(tidyverse)
+library(gsheet)
+library(cowplot)
+library(patchwork)
+library(ggthemes)
+library(viridis)
+library(epifitter)
+library(ggplot2)
+library("writexl")
+library(nlme)
+library(lme4)
+library(DHARMa)
+library(performance)
+library(report)
+library(emmeans)
+library(multcompView)
+library(multcomp)
+library(corrplot)
+library(see)
+library(lubridate)
+library(agridat)
+library(cowplot)
+library(agricolae)
+library(sf)
+library(lme4)
+library(broom)
+library(lattice)
+library(car)
+library(scales)
+library(readxl)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(easyanova)
+library(tidyr)
+library(PerformanceAnalytics)
+library(magrittr)
+library(car)
+library(ggpubr)
+library(rstatix)
+library(reshape)
+library(kableExtra)
+library(formattable)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(ggh4x)
+library(gridExtra)
+library(stringr)
+library(epiR)
+library(ggridges)
+library(RColorBrewer)
+library(DT)
+library(gsheet)
+```
+
+-   
+
+    #### ***Ajustar fecha como factor***
+
+```{r}
+DB_original <- read_excel("DB_floracion.xlsx")
+
+# Convertir la columna de fecha a formato POSIXct
+DB_original$Fecha <- as.POSIXct(DB_original$Fecha, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC") 
+  
+# Convertir la columna de fecha a factor
+DB_original$Fecha <- as.factor(DB_original$Fecha)
+
+DB_original |> 
+            DT::datatable(
+            extensions = 'Buttons', 
+            options = list(dom = 'Bfrtip', 
+            buttons = c('excel', "csv")))  
+
+
+```
+
+-   
+
+    #### ***Contar hojas con Roya y severidad total***
+
+```{r}
+# Seleccionar las columnas cuyo encabezado comienza con "S"
+Hojas_Roya <- DB_original |>  
+          select(starts_with("S"))
+
+# Convertir las columnas seleccionadas a numéricas
+Hojas_Roya<- Hojas_Roya |> 
+              mutate(across(everything(), as.numeric))
+
+# Crear una nueva columna que cuente cuántas columnas "S" tienen valores (no NA)
+DB_original$Hojas_Roya <- rowSums(!is.na(Hojas_Roya))
+
+# Crear una nueva columna que sume los valores de las columnas "S" por fila
+DB_original$Severidad_total <- rowSums(Hojas_Roya, na.rm = TRUE)
+
+
+DB_original |> 
+            DT::datatable(
+            extensions = 'Buttons', 
+            options = list(dom = 'Bfrtip', 
+            buttons = c('excel', "csv")))     
+```
+
+-   
+
+    #### ***Asignar Tto al árbol***
+
+Usar la funcion Mutate para crear nuevas columnas para crear una categoria para agrupar los arboles por tratamiento
+
+```{r}
+
+
+# Asignar nombres en función del rango de la columna Arbol
+DB_original <- DB_original %>%
+                  mutate(Parcela = case_when(
+                    Arbol >= 1 & Arbol <= 80 ~ "Tto Fungicida",
+                    Arbol >= 81 & Arbol <= 160 ~ "Tto Nuevo",
+                    Arbol >= 161 & Arbol <= 240 ~ "Tto Testigo SA",
+                    TRUE ~ NA_character_  # Asignar NA para valores fuera de los rangos especificados
+                  ))
+
+
+DB_original |> 
+            DT::datatable(
+            extensions = 'Buttons', 
+            options = list(dom = 'Bfrtip', 
+            buttons = c('excel', "csv")))    
+```
+
+-   
+
+    #### ***Calcular Incidencia, severidad , defoliación***
+
+```{r}
+
+DB_original <- DB_original |> 
+                  mutate(Incidencia = ((Nudos*2)/Hojas_Roya),
+                         Severidad = (Severidad_total/Hojas_Roya),
+                         Defoliacion = ( 100-((HP*100) / (Nudos*2))))
+
+
+
+DB_original |> 
+            DT::datatable(
+            extensions = 'Buttons', 
+            options = list(dom = 'Bfrtip', 
+            buttons = c('excel', "csv"))) 
+
+
+```
+
+-   
+
+    #### ***Crear Base de datos***
+
+```{r}
+DB_analisis <-DB_original |> 
+                  select(Fecha,Parcela,Arbol,Rama,Nudos,Incidencia,Severidad,Defoliacion)
+
+DB_analisis |> 
+            DT::datatable(
+            extensions = 'Buttons', 
+            options = list(dom = 'Bfrtip', 
+            buttons = c('excel', "csv")))  |> 
+                            formatRound(c('Incidencia','Severidad','Defoliacion'), 2)
+
+```
+
+### Preparación de la Base de datos Final
+
+```{r}
+dat<-read.csv2("DB_PAT104022.csv")
+
+dat |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   Buttons = c('excel', "csv"))) |> 
+                        formatRound(c('Inc_promedio','Def_calculada','Sev_total','Severidad','Sev_condicional'), 2)
+
+
+```
+
+Uso de la funcion select para convertir una tabla resumida
+
+```{r}
+CLR_ <-dat |> 
+      select(Evaluacion,Time_,Time_E,Eva_E,Eva_,Parcela,Surco,Arbol_1,Arbol,Rep,Htotal,Inc_promedio,Def_calculada,Severidad,Sev_condicional)
+
+CLR_ |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   Buttons = c('excel', "csv")))
+```
+
+## Evaluaciones
+
+-   `Evaluacion 1 = (Mitaca_2021) Historico Sep/21`
+-   `Evaluacion 2 = (Principal_2022) Feb/22`
+-   `Evaluacion 3 = (Mitaca_2022) Floración Sep/22`
+
+## Tratamientos
+
+-   Parcela =
+    -   1-`Tto Fungicida`
+    -   2- `Tto Fungicida Nuevo`
+    -   3- `Tto Testigo SA (Sin aplicación)`
+
+## Variables
+
+-   `Arbol`= 1- 80
+-   `Rep`= 1-3
+-   `Nudos` = Número de nudos totales
+-   `Htotal` = Número de hojas totales presentes
+-   `Htotal_t`= Número de hojas totales teóricas (Nudos X 2)
+-   `Inc_promedio` = Porcentaje de hojas afectados por roya
+-   `Def_calculada` = Porcentaje de hojas faltantes en cada rama a partir de la marcación inicial y su conteo progresivo
+-   `Sev_total` = Sumatoria de valores de severidad de todas las hojas afectadas por la enfermedad
+-   `Severidad` = Proporcion de severidad total (sev_total) / Número de hojas totales presentes (Htotal)
+-   `Sev_condicional` = Proporcion de severidad total (sev_total) / Número de hojas afectadas por la enfermedad (Hroya)
+-   `Tx_Def` = (% de hojas que caen/día) = 0.0144 x incidencia
+
+## ***Análisis Exploratorios***
+
+-   
+
+    ## Visualización de Datos
+
+-   
+
+    ### Evaluación por fecha
+
+Comportamiento de las variables evaluadas sobre cada parcela en cada parcela de validación a través del tiempo.
+
+-   
+
+    ### **Database**
+
+```{r}
+dat_ave<- CLR_ |> 
+             group_by(Evaluacion,Time_,Time_E,Eva_E,Eva_,Parcela,Surco,Arbol_1,Arbol)|> 
+             summarize(
+              Htotal= mean(Htotal,na.rm=TRUE),
+              Incidencia = mean(Inc_promedio,na.rm=TRUE),
+              Severidad = mean(Severidad,na.rm=TRUE), 
+              Defoliacion = mean(Def_calculada,na.rm=TRUE))
+
+dat_ave %>%
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   Buttons = c('excel', "csv")))%>%
+                        formatRound(c('Htotal','Incidencia','Severidad','Defoliacion'), 2)
+
+
+
+
+```
+
+-   
+
+    ## Evaluación (Tiempo)
+
+```{r, fig.height=10, fig.width=25, warning=FALSE, message=FALSE}
+
+
+Incidencia<-dat_ave %>%
+                ggplot(aes(Arbol_1,Surco,label = Arbol))+
+                geom_point(size = 5,shape=10,stroke = 1)+
+                geom_point(size = 5,alpha=1, aes(colour= Incidencia))+
+                scale_colour_distiller(palette =  "Spectral",direction = -1,limits = c(0,100)) +
+                 scale_y_discrete(limits=c("J","I","H","G","F","E","D","C","B","A"))+
+                scale_x_discrete(limits=c("1","2","3","4","5","6","7","8","9","10","11","12"),guide = guide_axis(position = "top")) +
+                 facet_wrap(Parcela~Time_,ncol=9) +
+                theme_clean() +
+                theme(axis.text.x=element_blank(), #remove x axis labels
+                      axis.ticks.x=element_blank(), #remove x axis ticks
+                      axis.text.y=element_blank(),  #remove y axis labels
+                      axis.ticks.y=element_blank(),  #remove y axis ticks
+                      legend.title = element_text( face="bold",size = 20),
+                      strip.text = element_text(size =15,face = "bold"),
+                      plot.title = element_text(size =30,face="bold"),
+                      plot.subtitle = element_text(size = 20),
+                      plot.background = element_rect(colour = "white"),
+                    legend.background = element_rect(colour = "white"),
+                    legend.text = element_text(size = 15,face = c(rep("italic", 2), rep("plain", 2))),legend.position = "none") +
+                geom_text(size = 3,alpha=.9)+
+                labs(title = "A.Evaluación de Incidencia",x="Tiempo (ddfp)",y="Parcelas (Tratamientos)",
+                     subtitle ="",caption ="")
+
+Incidencia
+
+```
+
+```{r, fig.height=10, fig.width=25, warning=FALSE, message=FALSE}
+
+
+Severidad<-dat_ave  %>%
+            ggplot(aes(Arbol_1,Surco,label = Arbol))+
+            geom_point(size = 5,shape=10,stroke = 1)+
+            geom_point(size = 5,alpha=1, aes(colour= Severidad))+
+            scale_colour_distiller(palette =  "Spectral",direction = -1,limits = c(0,5)) +
+             scale_y_discrete(limits=c("J","I","H","G","F","E","D","C","B","A"))+
+            scale_x_discrete(limits=c("1","2","3","4","5","6","7","8","9","10","11","12"),guide = guide_axis(position = "top")) +
+             facet_wrap(Parcela~Time_,ncol=9) +
+            theme_clean() +
+            theme(axis.text.x=element_blank(), #remove x axis labels
+                      axis.ticks.x=element_blank(), #remove x axis ticks
+                      axis.text.y=element_blank(),  #remove y axis labels
+                      axis.ticks.y=element_blank(),  #remove y axis ticks
+                      legend.title = element_text( face="bold",size = 20),
+                      strip.text = element_text(size =15,face = "bold"),
+                      plot.title = element_text(size =30,face="bold"),
+                      plot.subtitle = element_text(size = 20),
+                      plot.background = element_rect(colour = "white"),
+                    legend.background = element_rect(colour = "white"),
+                    legend.text = element_text(size = 15,face = c(rep("italic", 2), rep("plain", 2))),legend.position = "none") +
+                geom_text(size = 3,alpha=.9)+
+                labs(title = "A.Evaluación de Severidad",x="Tiempo (ddfp)",y="Parcelas (Tratamientos)",
+                     subtitle ="",caption ="")
+
+
+Severidad
+
+```
+
+```{r, fig.height=10, fig.width=25, warning=FALSE, message=FALSE}
+
+
+Defoliacion<-dat_ave  %>%
+            ggplot(aes(Arbol_1,Surco,label = Arbol))+
+            geom_point(size = 5,shape=10,stroke = 1)+
+            geom_point(size = 5,alpha=1, aes(colour= Defoliacion))+
+            scale_colour_distiller(palette =  "Spectral",direction = -1,limits = c(0,100)) +
+             scale_y_discrete(limits=c("J","I","H","G","F","E","D","C","B","A"))+
+            scale_x_discrete(limits=c("1","2","3","4","5","6","7","8","9","10","11","12"),guide = guide_axis(position = "top")) +
+             facet_wrap(Parcela~Time_,ncol=9) +
+            theme_clean() +
+            theme(axis.text.x=element_blank(), #remove x axis labels
+                      axis.ticks.x=element_blank(), #remove x axis ticks
+                      axis.text.y=element_blank(),  #remove y axis labels
+                      axis.ticks.y=element_blank(),  #remove y axis ticks
+                      legend.title = element_text( face="bold",size = 20),
+                      strip.text = element_text(size =15,face = "bold"),
+                      plot.title = element_text(size =30,face="bold"),
+                      plot.subtitle = element_text(size = 20),
+                      plot.background = element_rect(colour = "white"),
+                    legend.background = element_rect(colour = "white"),
+                    legend.text = element_text(size = 15,face = c(rep("italic", 2), rep("plain", 2))),legend.position = "none") +
+                geom_text(size = 3,alpha=.9)+
+                labs(title = "A.Evaluación de Defoliación",x="Tiempo (ddfp)",y="Parcelas (Tratamientos)",
+                     subtitle ="",caption ="")
+
+Defoliacion
+
+```
+
+-   
+
+    ## Evaluación (Dinámica)
+
+```{r, fig.height=5, fig.width=22, warning=FALSE, message=FALSE}
+
+Plot1a<-dat %>%
+            group_by(Time_,Parcela)%>%
+            summarise(Incidencia=mean(Inc_promedio,na.rm=TRUE),sd=sd(Inc_promedio,na.rm=TRUE))%>%
+            mutate( se = sd / sqrt(length(Incidencia)))%>% 
+            ggplot(aes(Time_,Incidencia, fill  = Parcela, group= Parcela)) +
+            geom_rect(aes(xmin = 120 , xmax = 210, ymin = 0, ymax =100),fill = "#f7d8d8",alpha= 0.1) +
+            geom_rect(aes(xmin = 280 , xmax = 370, ymin = 0, ymax =100),fill = "#f7d8d8",alpha= 0.1) +
+            geom_area(position=position_identity(),alpha= 0.5)+
+            geom_errorbar(aes(ymin=Incidencia-se, ymax=Incidencia+se), width=0.4, alpha=0.9, size=.8,position=position_dodge(0.05))+
+            geom_hline(yintercept=15,linetype="dashed", color = "blue",size=1) +
+            facet_wrap(~Parcela,ncol =3) +
+            theme_clean() +
+            theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10,angle = 90),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" )  +
+            scale_fill_manual(values = c( "Tto Fungicida"="#669933", "Tto Nuevo"="#FFCC66","Tto Testigo SA"="#990000"))+ 
+             scale_x_continuous(breaks=c(0,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450))+
+            ylim(-5, 100) +
+            labs(
+              fill = "Tratamiento", x = "Días de Evaluación (ddfp)",
+              y = "% Incidencia",
+              title = "A. Dinámica Incidencia",subtitle =""
+            )
+
+```
+
+```{r, fig.height=5, fig.width=22, warning=FALSE, message=FALSE}
+
+Plot2a<-dat %>%
+            group_by(Time_,Parcela)%>%
+            summarise(Severidad=mean(Sev_condicional,na.rm=TRUE),sd=sd(Sev_condicional,na.rm=TRUE))%>%
+            mutate( se = sd / sqrt(length(Severidad)))%>% 
+            ggplot(aes(Time_,Severidad, fill  = Parcela, group= Parcela)) +
+            geom_rect(aes(xmin = 120 , xmax = 210, ymin = 0, ymax =7),fill = "#f7d8d8",alpha= 0.1) +
+            geom_rect(aes(xmin = 280 , xmax = 370, ymin = 0, ymax =7),fill = "#f7d8d8",alpha= 0.1) +
+            geom_area(position=position_identity(),alpha= 0.5)+
+            geom_errorbar(aes(ymin=Severidad-se, ymax=Severidad+se), width=0.4, alpha=0.9, size=.8,position=position_dodge(0.05))+
+            geom_hline(yintercept=2,linetype="dashed", color = "blue",size=1) +
+            facet_wrap(~Parcela,ncol =3) +
+            theme_clean() +
+            theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10,angle = 90),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" )  +
+            scale_fill_manual(values = c( "Tto Fungicida"="#669933", "Tto Nuevo"="#FFCC66","Tto Testigo SA"="#990000"))+ 
+            scale_x_continuous(breaks=c(0,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450))+
+            ylim(-1, 7) +
+            labs(
+              fill = "Tratamiento", x = "Días de Evaluación (ddfp)",
+              y = "% Severidad",
+              title = "B. Dinámica Severidad",subtitle =""
+            )
+
+```
+
+```{r, fig.height=5, fig.width=22, warning=FALSE, message=FALSE}
+
+Plot3a<-dat %>%
+            group_by(Time_,Parcela)%>%
+            summarise(Defoliacion= median(Def_calculada,na.rm=TRUE),sd=sd(Def_calculada,na.rm=TRUE))%>%
+            mutate( se = sd / sqrt(length(Defoliacion)))%>% 
+            ggplot(aes(Time_,Defoliacion, fill  = Parcela, group= Parcela)) +
+            geom_rect(aes(xmin = 120 , xmax = 210, ymin = 0, ymax =100),fill = "#f7d8d8",alpha= 0.1) +
+            geom_rect(aes(xmin = 280 , xmax = 370, ymin = 0, ymax =100),fill = "#f7d8d8",alpha= 0.1) +
+            geom_area(position=position_identity(),alpha= 0.5)+
+            geom_errorbar(aes(ymin=Defoliacion-se, ymax=Defoliacion+se), width=0.4, alpha=0.9, size=.8,position=position_dodge(0.05))+
+            geom_hline(yintercept=50,linetype="dashed", color = "blue",size=1) +
+            facet_wrap(~Parcela,ncol =3) +
+            theme_clean() +
+            theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10,angle = 90),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" )  +
+            scale_fill_manual(values = c( "Tto Fungicida"="#669933", "Tto Nuevo"="#FFCC66","Tto Testigo SA"="#990000"))+ 
+            scale_x_continuous(breaks=c(0,30,60,90,120,150,180,210,240,270,300,330,360,390,420,450))+
+            ylim(0, 100) +
+            labs(
+              fill = "Tratamiento", x = "Días de Evaluación (ddfp)",
+              y = "% Defoliación",
+              title = "C. Dinamica Defoliación",subtitle =""
+            )
+
+
+```
+
+```{r, fig.height=10, fig.width=15, warning=FALSE, message=FALSE}
+
+Plot_Lote<- (Plot1a + Plot2a + Plot3a +  plot_layout(ncol = 1))
+Plot_Lote
+
+#ggexport(Plot_Lote,filename = "Fig1_MQR104024_Dinamic-_lote_full.pdf", width = 25 , height = 15)
+
+```
+
+-   
+
+    ## Dispersión (Incidencia)
+
+```{r, fig.height=5, fig.width=8, warning=FALSE, message=FALSE}
+
+library(ggthemes)
+
+dat_ave |>
+  ggplot(aes(Eva_, Incidencia, color = Parcela))+
+  geom_rect(aes(xmin = 4 , xmax = 7, ymin = 0, ymax =100),fill = "#f7d8d8",alpha = 0.3,color = NA) +
+  geom_rect(aes(xmin = 9 , xmax = 12, ymin = 0, ymax =100),fill = "#f7d8d8",alpha = 0.3,color = NA) +
+  geom_jitter(size=2,alpha=0.3)+
+  geom_hline(yintercept=30,linetype="dashed", color = "blue",size=1) +
+  stat_summary(fun.data = mean_se,size=.2,
+               color = "black")+
+  theme_clean()+
+  theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+  scale_color_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+  facet_wrap(~Parcela, nrow = 3,)+
+  ylim(0,100)+
+  scale_x_continuous(breaks = seq(from = 1, to = 15, by = 1))+
+  labs(
+              x = "Evaluaciónes",
+              y = "% Incidencia",
+              title = "A. Dispersión Incidencia",subtitle =""
+            )
+
+```
+
+-   
+
+    ## Dispersión (Severidad)
+
+```{r, fig.height=5, fig.width=8, warning=FALSE, message=FALSE}
+
+
+dat_ave |>
+  ggplot(aes(Eva_, Severidad, color = Parcela))+
+  geom_rect(aes(xmin = 4 , xmax = 7, ymin = 0, ymax =10),fill = "#f7d8d8",alpha = 0.1,color = NA) +
+  geom_rect(aes(xmin = 9 , xmax = 12, ymin = 0, ymax =10),fill = "#f7d8d8",alpha = 0.1,color = NA) +
+  geom_jitter(size=2,alpha=0.3)+
+  geom_hline(yintercept=5,linetype="dashed", color = "blue",size=1) +
+  stat_summary(fun.data = mean_se,size=.2,
+               color = "black")+
+  theme_clean()+
+  theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+  scale_color_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+  facet_wrap(~Parcela, nrow = 3,)+
+  ylim(0,10)+
+  scale_x_continuous(breaks = seq(from = 1, to = 15, by = 1))+
+  labs(
+              x = "Evaluaciónes",
+              y = "% Severidad",
+              title = "B. Dispersión Severidad",subtitle =""
+            )
+```
+
+-   
+
+    ## Dispersión (Defoliación)
+
+```{r, fig.height=5, fig.width=8, warning=FALSE, message=FALSE}
+
+
+dat_ave |>
+  ggplot(aes(Eva_, Defoliacion, color = Parcela))+
+  geom_rect(aes(xmin = 4 , xmax = 7, ymin = 0, ymax =100),fill = "#f7d8d8",alpha = 0.1,color = NA) +
+  geom_rect(aes(xmin = 9 , xmax = 12, ymin = 0, ymax =100),fill = "#f7d8d8",alpha = 0.1,color = NA) +
+  geom_jitter(size=2,alpha=0.3)+
+  geom_hline(yintercept=50,linetype="dashed", color = "blue",size=1) +
+  stat_summary(fun.data = mean_se,size=.2,
+               color = "black")+
+  theme_clean()+
+  theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+  scale_color_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+  facet_wrap(~Parcela, nrow = 3,)+
+  ylim(0,100)+
+  scale_x_continuous(breaks = seq(from = 1, to = 15, by = 1))+
+  labs(
+              x = "Evaluaciónes",
+              y = "% Defoliación",
+              title = "C. Dispersión Defoliación",subtitle =""
+            )
+```
+
+-   
+
+    ## Descriptiva Incidencia (Periodo Critico)
+
+```{r}
+CLR_descriptivas_inc <-dat_ave |>
+                          filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12)) |>   
+                          group_by(Parcela,Evaluacion) |> 
+                          summarise(
+                            mean_inc = mean(Incidencia,na.rm=TRUE),
+                            sd_inc = sd(Incidencia,na.rm=TRUE),
+                            var_inc = var(Incidencia,na.rm=TRUE),
+                            n = n(),
+                            se_inc = sd_inc / sqrt(n - 1),
+                            ci = se_inc * qt(0.05, df = n - 1)
+                          )
+
+
+CLR_descriptivas_inc |> 
+                    DT::datatable(
+                    extensions = 'Buttons', 
+                    options = list(dom = 'Bfrtip', 
+                     buttons = c('excel', "csv"))) |> 
+                    formatRound(c('mean_inc', 'sd_inc', 'var_inc','se_inc','ci'), 2)
+```
+
+-   
+
+    ## Descriptiva Severidad (Periodo Critico)
+
+```{r}
+CLR_descriptivas_sev <-dat_ave |>
+                          filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12)) |>   
+                          group_by(Parcela,Evaluacion) |> 
+                          summarise(
+                            mean_sev = mean(Severidad,na.rm=TRUE),
+                            sd_sev = sd(Severidad,na.rm=TRUE),
+                            var_sev = var(Severidad,na.rm=TRUE),
+                            n = n(),
+                            se_sev = sd_sev / sqrt(n - 1),
+                            ci = se_sev * qt(0.05, df = n - 1)
+                          )
+
+
+CLR_descriptivas_sev |> 
+                    DT::datatable(
+                    extensions = 'Buttons', 
+                    options = list(dom = 'Bfrtip', 
+                     buttons = c('excel', "csv"))) |> 
+                    formatRound(c('mean_sev', 'sd_sev', 'var_sev','se_sev','ci'), 2)
+```
+
+-   
+
+    ## Descriptiva Defoliación(Periodo Critico)
+
+```{r}
+CLR_descriptivas_def <-dat_ave |>
+                          filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12)) |>   
+                          group_by(Parcela,Evaluacion) |> 
+                          summarise(
+                            mean_def = mean(Defoliacion,na.rm=TRUE),
+                            sd_def = sd(Defoliacion,na.rm=TRUE),
+                            var_def = var(Defoliacion,na.rm=TRUE),
+                            n = n(),
+                            se_def = sd_def / sqrt(n - 1),
+                            ci = se_def * qt(0.05, df = n - 1)
+                          )
+
+
+CLR_descriptivas_def |> 
+                    DT::datatable(
+                    extensions = 'Buttons', 
+                    options = list(dom = 'Bfrtip', 
+                     buttons = c('excel', "csv"))) |> 
+                    formatRound(c('mean_def', 'sd_def', 'var_def','se_def','ci'), 2)
+```
+
+```{r}
+CLR_inc <-CLR_  |>
+              filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12)) |>
+              group_by(Arbol) |> 
+              ggplot(aes(Parcela, Inc_promedio, fill = Parcela)) +
+              geom_boxplot(alpha = .5)+
+              stat_summary(fun.data = "mean_se",colour = "red")+
+              facet_wrap(~Evaluacion)+
+              theme_clean()+
+              theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+              scale_fill_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+              labs(
+              y = "% Incidencia",
+              title = "A. Boxplot Incidencia",subtitle =""
+            )
+
+```
+
+```{r}
+CLR_sev <-CLR_  |>
+              filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12)) |>
+              group_by(Arbol) |> 
+              ggplot(aes(Parcela, Sev_condicional, fill = Parcela)) +
+              geom_boxplot(alpha = .5)+
+              stat_summary(fun.data = "mean_se",colour = "red")+
+              facet_wrap(~Evaluacion)+
+              theme_clean()+
+              theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+              scale_fill_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+              labs(
+              y = "% Severidad",
+              title = "B. Boxplot Severidad",subtitle =""
+            )
+
+```
+
+```{r}
+CLR_def <-CLR_  |>
+              filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12)) |>
+              group_by(Arbol) |> 
+              ggplot(aes(Parcela, Def_calculada, fill = Parcela)) +
+              geom_boxplot(alpha = .5)+
+              stat_summary(fun.data = "mean_se",colour = "red")+
+              facet_wrap(~Evaluacion)+
+              theme_clean()+
+              theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+              scale_fill_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+              labs(
+              y = "% Defoliaci",
+              title = "C. Boxplot Defoliación",subtitle =""
+            )
+
+```
+
+```{r, fig.height=10, fig.width=10, warning=FALSE, message=FALSE}
+
+Plot_Boxplot<- (CLR_inc + CLR_sev + CLR_def +  plot_layout(ncol = 1))
+Plot_Boxplot
+
+#ggexport(Plot_Lote,filename = "Fig1_MQR104024_Dinamic-_lote_full.pdf", width = 25 , height = 15)
+
+```
+
+Analysis carried out in the FIP606 Copyrigth Gustavo Marin / Gabriela Rivadeneira © 2024
+
+いいですか、私たちの神は主おひとりです。
+
+º

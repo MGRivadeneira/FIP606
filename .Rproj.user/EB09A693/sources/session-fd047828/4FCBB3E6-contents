@@ -50,6 +50,16 @@ website:
         menu: 
         - href: AULA 16.qmd
           text: Construyendo mapas en R
+      - text: Proyecto Análisis de datos FIP606
+        menu:   
+        - href: FIP606-Proyect_CLR.qmd
+          text: Generalidades
+        - href: FIP606-Proyect_CLR2.qmd
+          text: Análisis Exploratorios
+        - href: FIP606-Proyect_CLR3.qmd
+          text: Análisis Estadisticos
+        - href: FIP606-Proyect_CLR4.qmd
+          text: Interpretación de Resultados
      
   
     right: 
@@ -69,7 +79,6 @@ format:
   html:
     code-summary: "Codigo"
     code-fold: true
-    code-tools: true
     fontsize: 1.0em
     theme:
       light: minty

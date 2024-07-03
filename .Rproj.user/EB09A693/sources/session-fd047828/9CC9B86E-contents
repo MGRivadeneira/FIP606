@@ -1,0 +1,135 @@
+---
+title: "**FIP606-Proyecto:** Interpretación de Resultados"
+
+  
+format: html
+editor: visual
+output: 
+ distill::distill_article:
+      toc: true
+      toc_float: yes
+      code_folding: code
+      theme: theme.css
+      highlight: default
+      highlight_downlit: true
+      self_contained: true
+      
+date: "`r Sys.Date()`"
+---
+
+## **Preparación *Base de Datos***
+
+-   
+
+    #### ***Cargar paquetes de análisis***
+
+```{r}
+library(tidyverse)
+library(gsheet)
+library(cowplot)
+library(patchwork)
+library(ggthemes)
+library(viridis)
+library(epifitter)
+library(ggplot2)
+library("writexl")
+library(nlme)
+library(lme4)
+library(DHARMa)
+library(performance)
+library(report)
+library(emmeans)
+library(multcompView)
+library(multcomp)
+library(corrplot)
+library(see)
+library(lubridate)
+library(agridat)
+library(cowplot)
+library(agricolae)
+library(sf)
+library(lme4)
+library(broom)
+library(lattice)
+library(car)
+library(scales)
+library(readxl)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(easyanova)
+library(tidyr)
+library(PerformanceAnalytics)
+library(magrittr)
+library(car)
+library(ggpubr)
+library(rstatix)
+library(reshape)
+library(kableExtra)
+library(formattable)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(ggh4x)
+library(gridExtra)
+library(stringr)
+library(epiR)
+library(ggridges)
+library(RColorBrewer)
+library(DT)
+library(gsheet)
+```
+
+### Preparación de la Base de datos
+
+```{r}
+dat<-read.csv2("Pn_PAT104022.csv")
+
+dat |>
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   Buttons = c('excel', "csv")))
+
+
+```
+
+```{r}
+dat %>% 
+  ggplot(aes(mean_inc, mean_def, size = Pn.Lote., color = Parcela))+
+  geom_point()+ 
+  facet_wrap(~Evaluacion)+
+  theme_clean()+
+  theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "top" ) +
+  ylim(50,80)+
+  xlim(0,50)+
+  scale_color_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+              labs( x= "% Incidencia",
+              y = "% Defoliación",
+              title = "Interacción Incidencia-Defoliación-Pn",subtitle =""
+            )
+
+
+
+
+```
+
+# **Implicaciones Biologicas**
+
+**¿El nuevo fungicida si está controlando la enfermedad?**
+
+Analysis carried out in the FIP606 Copyrigth Gustavo Marin / Gabriela Rivadeneira © 2024
+
+いいですか、私たちの神は主おひとりです。
+
+º

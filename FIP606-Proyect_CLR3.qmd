@@ -1,0 +1,527 @@
+---
+title: "**FIP606-Proyecto:** Análisis Estadistico"
+
+  
+format: html
+editor: visual
+output: 
+ distill::distill_article:
+      toc: true
+      toc_float: yes
+      code_folding: code
+      theme: theme.css
+      highlight: default
+      highlight_downlit: true
+      self_contained: true
+      
+date: "`r Sys.Date()`"
+---
+
+## **Preparación *Base de Datos***
+
+-   
+
+    #### ***Cargar paquetes de análisis***
+
+```{r}
+library(tidyverse)
+library(gsheet)
+library(cowplot)
+library(patchwork)
+library(ggthemes)
+library(viridis)
+library(epifitter)
+library(ggplot2)
+library("writexl")
+library(nlme)
+library(lme4)
+library(DHARMa)
+library(performance)
+library(report)
+library(emmeans)
+library(multcompView)
+library(multcomp)
+library(corrplot)
+library(see)
+library(lubridate)
+library(agridat)
+library(cowplot)
+library(agricolae)
+library(sf)
+library(lme4)
+library(broom)
+library(lattice)
+library(car)
+library(scales)
+library(readxl)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(easyanova)
+library(tidyr)
+library(PerformanceAnalytics)
+library(magrittr)
+library(car)
+library(ggpubr)
+library(rstatix)
+library(reshape)
+library(kableExtra)
+library(formattable)
+library(sjPlot)
+library(sjlabelled)
+library(sjmisc)
+library(ggh4x)
+library(gridExtra)
+library(stringr)
+library(epiR)
+library(ggridges)
+library(RColorBrewer)
+library(DT)
+library(gsheet)
+```
+
+### Preparación de la Base de datos
+
+```{r}
+dat<-read.csv2("DB_PAT104022.csv")
+
+dat |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   Buttons = c('excel', "csv"))) |> 
+                        formatRound(c('Inc_promedio','Def_calculada','Sev_total','Severidad','Sev_condicional'), 2)
+
+
+```
+
+Uso de la funcion select para convertir una tabla resumida
+
+```{r}
+CLR_ <-dat |> 
+      select(Evaluacion,Time_,Time_E,Eva_E,Eva_,Parcela,Surco,Arbol_1,Arbol,Rep,Htotal,Inc_promedio,Def_calculada,Severidad,Sev_condicional) |> 
+      filter((Eva_ >= 4 & Eva_ <= 7) | (Eva_ >= 9 & Eva_ <= 12))
+  
+
+CLR_ |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   Buttons = c('excel', "csv"))) 
+```
+
+## ***ANOVA + Prueba de Supuestos***
+
+## **Incidencia**
+
+```{r}
+# Crear el modelo ANOVA
+aov_inc <- aov(Inc_promedio~ Parcela, data = CLR_)
+
+# Resumen del modelo
+summary(aov_inc)
+```
+
+-   
+
+    ### homocedasticidad
+
+```{r}
+check_heteroscedasticity(aov_inc)
+```
+
+-   
+
+    ### Normalidad
+
+```{r}
+check_normality(aov_inc)
+```
+
+-   
+
+    ### check
+
+```{r}
+plot(simulateResiduals(aov_inc))
+```
+
+```{r}
+check_model(aov_inc)
+```
+
+[*No cumplen con los supuestos de normalidad y homocedasticidad, hay varias alternativas que puedes considerar para realizar análisis estadísticos apropiados.*]{style="color:#cf352e;"}
+
+-   
+
+    1.  **Transformaciones de Datos**
+
+-   
+
+    2.  [**Pruebas No Paramétricas**]{style="color:#cf352e;"} El análisis no paramétrico no asume una distribución específica para los datos y es más flexible en términos de los supuestos que hace.
+
+-   
+
+    3.  **Modelos Generalizados**
+
+-   
+
+    4.  **Resampling Methods**
+
+-   
+
+    5.  **Análisis Robustos**
+
+-   
+
+    6.  **Análisis de Varianza no Paramétrico**
+
+-   
+
+    ## ***Área Bajo la Curva del Progreso de la Enfermedad (AUDPC)***
+
+## Area Bajo la curva Incidencia
+
+```{r}
+dat_1<-CLR_ |> 
+  group_by(Evaluacion,Time_E,Parcela,Arbol) |> 
+  summarize(Incidencia = mean(Inc_promedio,na.rm=TRUE))
+
+
+dat_1 |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound('Incidencia', 2)
+
+```
+
+```{r}
+dat_audps <- dat_1 |> 
+          group_by(Evaluacion,Parcela,Arbol) |> 
+          summarize(audps = AUDPS(Time_E,Incidencia,))
+
+
+dat_audps |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound('audps', 2)
+```
+
+```{r}
+t<-90
+
+dat1_audpc <- dat_audps |> 
+  mutate(audpc2 = audps / t)
+
+
+dat1_audpc  %>%
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound(c ('audps','audpc2'), 2)
+```
+
+```{r}
+dat1_audpc_f<-  dat1_audpc  |> 
+                  group_by(Evaluacion,Parcela,Arbol) |> 
+                  summarize(audpc = sum(audps,na.rm=TRUE),TPD=mean(audpc2,na.rm=TRUE))
+
+dat1_audpc_f  |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound(c('audpc','TPD'), 2)
+```
+
+```{r}
+dat1_audpc_f_<-  dat1_audpc  |> 
+                  group_by(Parcela) |> 
+                  summarize(audpc = mean(audps,na.rm=TRUE),TPD=mean(audpc2,na.rm=TRUE))
+
+dat1_audpc_f_  |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound(c('audpc','TPD'), 2)
+```
+
+```{r}
+dat1_audpc_f |>
+            ggplot(aes(Parcela, audpc, fill = Parcela)) +
+            geom_boxplot() +
+            facet_wrap(~ Evaluacion)+
+            theme_clean()+
+              theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+              scale_fill_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+              labs(
+              y = "% Defoliaci",
+              title = "A. Boxplot ABCPE Incidencia",subtitle =""
+            )
+```
+
+```{r}
+# Test de Kruskal-Wallis
+kruskal.test(audpc ~ Parcela, data = dat1_audpc_f)
+```
+
+**Interpretación del Test de Kruskal-Wallis:** Este test no requiere la asunción de normalidad. Si el p-valor es menor que 0.05, hay diferencias significativas entre los grupos.
+
+```{r}
+kruskal(dat1_audpc_f$audpc, dat1_audpc_f$Parcela, console = TRUE)
+```
+
+```{r}
+aov_inc2 <- aov(audpc~ Parcela, data = dat1_audpc_f)
+
+aov_inc2
+```
+
+```{r}
+aov_inc_means<- cld(emmeans(aov_inc2, ~ Parcela),alpha = 0.05, Letters = LETTERS,reverse=F)
+
+aov_inc_means|> 
+      DT::datatable(
+        extensions = 'Buttons', 
+        options = list(dom = 'Bfrtip', 
+                       buttons = c('excel', "csv"))) |> 
+                            formatRound(c('emmean','SE','lower.CL','upper.CL'), 2)
+```
+
+## **Defoliación**
+
+```{r}
+# Crear el modelo ANOVA
+aov_def <- aov(Def_calculada~ Parcela, data = CLR_)
+
+# Resumen del modelo
+summary(aov_def)
+```
+
+-   
+
+    ### homocedasticidad
+
+```{r}
+check_heteroscedasticity(aov_def)
+```
+
+-   
+
+    ### Normalidad
+
+```{r}
+check_normality(aov_def)
+```
+
+-   
+
+    ### check
+
+```{r}
+plot(simulateResiduals(aov_def))
+```
+
+```{r}
+check_model(aov_def)
+```
+
+[*Se cumplen con el supuestos de normalidad, pero no con la **homocedasticidad**, hay varias alternativas que puedes considerar para realizar análisis estadísticos apropiados.*]{style="color:#cf352e;"}
+
+-   
+
+    1.  [**Transformaciones de Datos**]{style="color:#cf352e;"}
+
+-   
+
+    2.  **Pruebas No Paramétricas**
+
+-   
+
+    3.  **Modelos Generalizados**
+
+-   
+
+    4.  **Resampling Methods**
+
+-   
+
+    5.  **Análisis Robustos**
+
+-   
+
+    6.  **Análisis de Varianza no Paramétrico**
+
+-   
+
+    1.  **Transformaciones de Datos**
+
+-   
+
+    2.  [**Pruebas No Paramétricas**]{style="color:#cf352e;"} El análisis no paramétrico no asume una distribución específica para los datos y es más flexible en términos de los supuestos que hace.
+
+-   
+
+    3.  **Modelos Generalizados**
+
+-   
+
+    4.  **Resampling Methods**
+
+-   
+
+    5.  **Análisis Robustos**
+
+-   
+
+    6.  **Análisis de Varianza no Paramétrico**
+
+-   
+
+    ## ***Área Bajo la Curva del Progreso de la Enfermedad (AUDPC)***
+
+## Area Bajo la curva Defoliación
+
+```{r}
+dat_1<-CLR_ |> 
+  group_by(Evaluacion,Time_E,Parcela,Arbol) |> 
+  summarize(Defoliacion = mean(Def_calculada,na.rm=TRUE))
+
+
+dat_1 |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound('Defoliacion', 2)
+
+```
+
+```{r}
+dat_audps <- dat_1 |> 
+          group_by(Evaluacion,Parcela,Arbol) |> 
+          summarize(audps = AUDPS(Time_E,Defoliacion))
+
+
+dat_audps |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound('audps', 2)
+```
+
+```{r}
+t<-90
+
+dat1_audpc <- dat_audps |> 
+  mutate(audpc2 = audps / t)
+
+
+dat1_audpc  %>%
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound(c ('audps','audpc2'), 2)
+```
+
+```{r}
+dat1_audpc_f<-  dat1_audpc  |> 
+                  group_by(Evaluacion,Parcela,Arbol) |> 
+                  summarize(audpc = sum(audps,na.rm=TRUE),TPD=mean(audpc2,na.rm=TRUE))
+
+dat1_audpc_f  |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound(c('audpc','TPD'), 2)
+```
+
+```{r}
+dat1_audpc_f_<-  dat1_audpc  |> 
+                  group_by(Parcela) |> 
+                  summarize(audpc = mean(audps,na.rm=TRUE),TPD=mean(audpc2,na.rm=TRUE))
+
+dat1_audpc_f_  |> 
+  DT::datatable(
+    extensions = 'Buttons', 
+    options = list(dom = 'Bfrtip', 
+                   buttons = c('excel', "csv"))) |> 
+                        formatRound(c('audpc','TPD'), 2)
+```
+
+```{r}
+dat1_audpc_f |>
+            ggplot(aes(Parcela, audpc, fill = Parcela)) +
+            geom_boxplot() +
+            facet_wrap(~ Evaluacion)+
+            theme_clean()+
+              theme(axis.text = element_text(size = 8),
+                  axis.text.x = element_text( size =10),
+                  axis.title = element_text(size = 10),
+                  strip.text.x=element_text(face="bold",size =10,margin=margin(1,0,1,0)),
+                  plot.background = element_rect(colour = "white"),
+                  legend.background = element_rect(colour = "white"),
+                  legend.title = element_text( face="bold",size = 10),
+                  legend.text = element_text( size = 10),
+                  plot.title = element_text(size = 15,face="bold"),
+                  plot.subtitle = element_text(size = 15),
+                  legend.position = "none" ) +
+              scale_fill_manual(values = c( "#669933","#FFCC66","#990000"))+ 
+              labs(
+              y = "% Defoliaci",
+              title = "B. Boxplot ABCPE Defoliación",subtitle =""
+            )
+```
+
+```{r}
+# Test de Kruskal-Wallis
+kruskal.test(audpc ~ Parcela, data = dat1_audpc_f)
+```
+
+**Interpretación del Test de Kruskal-Wallis:** Este test no requiere la asunción de normalidad. Si el p-valor es menor que 0.05, hay diferencias significativas entre los grupos.
+
+```{r}
+kruskal(dat1_audpc_f$audpc, dat1_audpc_f$Parcela, console = TRUE)
+```
+
+```{r}
+aov_inc2 <- aov(audpc~ Parcela, data = dat1_audpc_f)
+
+aov_inc2
+```
+
+```{r}
+aov_inc_means<- cld(emmeans(aov_inc2, ~ Parcela),alpha = 0.05, Letters = LETTERS,reverse=F)
+
+aov_inc_means|> 
+      DT::datatable(
+        extensions = 'Buttons', 
+        options = list(dom = 'Bfrtip', 
+                       buttons = c('excel', "csv"))) |> 
+                            formatRound(c('emmean','SE','lower.CL','upper.CL'), 2)
+```
+
+Analysis carried out in the FIP606 Copyrigth Gustavo Marin / Gabriela Rivadeneira © 2024
+
+いいですか、私たちの神は主おひとりです。
+
+º

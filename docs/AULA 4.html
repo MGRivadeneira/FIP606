@@ -219,6 +219,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
     </ul>
   </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-proyecto-análisis-de-datos-fip606" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Proyecto Análisis de datos FIP606</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-proyecto-análisis-de-datos-fip606">    
+        <li>
+    <a class="dropdown-item" href="./FIP606-Proyect_CLR.html">
+ <span class="dropdown-text">Generalidades</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./FIP606-Proyect_CLR2.html">
+ <span class="dropdown-text">Análisis Exploratorios</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./FIP606-Proyect_CLR3.html">
+ <span class="dropdown-text">Análisis Estadisticos</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./FIP606-Proyect_CLR4.html">
+ <span class="dropdown-text">Interpretación de Resultados</span></a>
+  </li>  
+    </ul>
+  </li>
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item compact">
@@ -257,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<div class="quarto-title-block"><div><h1 class="title">Visualización de datos</h1><button type="button" class="btn code-tools-button dropdown-toggle" id="quarto-code-tools-menu" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi"></i> Code</button><ul class="dropdown-menu dropdown-menu-end" aria-labelelledby="quarto-code-tools-menu"><li><a id="quarto-show-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Show All Code</a></li><li><a id="quarto-hide-all-code" class="dropdown-item" href="javascript:void(0)" role="button">Hide All Code</a></li><li><hr class="dropdown-divider"></li><li><a id="quarto-view-source" class="dropdown-item" href="javascript:void(0)" role="button">View Source</a></li></ul></div></div>
+<h1 class="title">Visualización de datos</h1>
 </div>
 
 
@@ -455,8 +478,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 
-
-<!-- -->
 
 </section>
 
@@ -684,57 +705,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  const viewSource = window.document.getElementById('quarto-view-source') ||
-                     window.document.getElementById('quarto-code-tools-source');
-  if (viewSource) {
-    const sourceUrl = viewSource.getAttribute("data-quarto-source-url");
-    viewSource.addEventListener("click", function(e) {
-      if (sourceUrl) {
-        // rstudio viewer pane
-        if (/\bcapabilities=\b/.test(window.location)) {
-          window.open(sourceUrl);
-        } else {
-          window.location.href = sourceUrl;
-        }
-      } else {
-        const modal = new bootstrap.Modal(document.getElementById('quarto-embedded-source-code-modal'));
-        modal.show();
-      }
-      return false;
-    });
-  }
-  function toggleCodeHandler(show) {
-    return function(e) {
-      const detailsSrc = window.document.querySelectorAll(".cell > details > .sourceCode");
-      for (let i=0; i<detailsSrc.length; i++) {
-        const details = detailsSrc[i].parentElement;
-        if (show) {
-          details.open = true;
-        } else {
-          details.removeAttribute("open");
-        }
-      }
-      const cellCodeDivs = window.document.querySelectorAll(".cell > .sourceCode");
-      const fromCls = show ? "hidden" : "unhidden";
-      const toCls = show ? "unhidden" : "hidden";
-      for (let i=0; i<cellCodeDivs.length; i++) {
-        const codeDiv = cellCodeDivs[i];
-        if (codeDiv.classList.contains(fromCls)) {
-          codeDiv.classList.remove(fromCls);
-          codeDiv.classList.add(toCls);
-        } 
-      }
-      return false;
-    }
-  }
-  const hideAllCode = window.document.getElementById("quarto-hide-all-code");
-  if (hideAllCode) {
-    hideAllCode.addEventListener("click", toggleCodeHandler(false));
-  }
-  const showAllCode = window.document.getElementById("quarto-show-all-code");
-  if (showAllCode) {
-    showAllCode.addEventListener("click", toggleCodeHandler(true));
-  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp('/' + window.location.host + '/');
@@ -1064,165 +1034,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Source Code</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Visualización de datos"</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">Autor:</span><span class="co"> Gaby Rivadeneira </span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="an">format:</span><span class="co"> html</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>Usando *datapasta* vamos a cargar datos en el ambiente El uso básico de datapasta implica seleccionar un objeto de datos en R (como un data frame) y copiarlo al portapapeles del sistema operativo. Luego, se puede pegar directamente en otro programa (por ejemplo, un editor de texto o una hoja de cálculo).</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"9"</span>, <span class="st">"12.5"</span>, <span class="st">"10"</span>, <span class="st">"8"</span>, <span class="st">"13.2"</span>, <span class="st">"11"</span>, <span class="st">"10.8"</span>, <span class="st">"9.5"</span>, <span class="st">"10.8"</span>, <span class="st">"10.4"</span>, <span class="st">"13.72"</span>, <span class="st">"15.91"</span>, <span class="st">"15.7"</span>, <span class="st">"14.2"</span>, <span class="st">"15.9"</span>, <span class="st">"16.54"</span>, <span class="st">"18"</span>, <span class="st">"14.4"</span>, <span class="st">"16.41"</span>, <span class="st">"16"</span>)</span>
-<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>comp</span>
-<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">9</span>, <span class="fl">12.5</span>, <span class="dv">10</span>, <span class="dv">8</span>, <span class="fl">13.2</span>, <span class="dv">11</span>, <span class="fl">10.8</span>, <span class="fl">9.5</span>, <span class="fl">10.8</span>, <span class="fl">10.4</span>, <span class="fl">13.72</span>, <span class="fl">15.91</span>, <span class="fl">15.7</span>, <span class="fl">14.2</span>, <span class="fl">15.9</span>, <span class="fl">16.54</span>, <span class="dv">18</span>, <span class="fl">14.4</span>, <span class="fl">16.41</span>, <span class="dv">16</span>)</span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">trat =</span> <span class="fu">c</span>(<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,</span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"Mg2"</span>,<span class="st">"control"</span>,</span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"control"</span>,<span class="st">"control"</span>,<span class="st">"control"</span>,<span class="st">"control"</span>,<span class="st">"control"</span>,</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a>                       <span class="st">"control"</span>,<span class="st">"control"</span>,<span class="st">"control"</span>,<span class="st">"control"</span>),</span>
-<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a>               <span class="at">rep =</span> <span class="fu">c</span>(<span class="dv">1</span>L,<span class="dv">2</span>L,<span class="dv">3</span>L,<span class="dv">4</span>L,<span class="dv">5</span>L,<span class="dv">6</span>L,<span class="dv">7</span>L,<span class="dv">8</span>L,</span>
-<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a>                       <span class="dv">9</span>L,<span class="dv">10</span>L,<span class="dv">1</span>L,<span class="dv">2</span>L,<span class="dv">3</span>L,<span class="dv">4</span>L,<span class="dv">5</span>L,<span class="dv">6</span>L,<span class="dv">7</span>L,<span class="dv">8</span>L,<span class="dv">9</span>L,<span class="dv">10</span>L),</span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>              <span class="at">comp =</span> <span class="fu">c</span>(<span class="dv">9</span>,<span class="fl">12.5</span>,<span class="dv">10</span>,<span class="dv">8</span>,<span class="fl">13.2</span>,<span class="dv">11</span>,<span class="fl">10.8</span>,</span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>                       <span class="fl">9.5</span>,<span class="fl">10.8</span>,<span class="fl">10.4</span>,<span class="fl">13.72</span>,<span class="fl">15.91</span>,<span class="fl">15.7</span>,<span class="fl">14.2</span>,<span class="fl">15.9</span>,<span class="fl">16.54</span>,</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>                       <span class="dv">18</span>,<span class="fl">14.4</span>,<span class="fl">16.41</span>,<span class="dv">16</span>))</span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>dat2 <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>      <span class="sc">~</span>trat, <span class="sc">~</span>rep, <span class="sc">~</span>comp,</span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">1</span>L,     <span class="dv">9</span>,</span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">2</span>L,  <span class="fl">12.5</span>,</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">3</span>L,    <span class="dv">10</span>,</span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">4</span>L,     <span class="dv">8</span>,</span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">5</span>L,  <span class="fl">13.2</span>,</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">6</span>L,    <span class="dv">11</span>,</span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">7</span>L,  <span class="fl">10.8</span>,</span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">8</span>L,   <span class="fl">9.5</span>,</span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,   <span class="dv">9</span>L,  <span class="fl">10.8</span>,</span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>      <span class="st">"Mg2"</span>,  <span class="dv">10</span>L,  <span class="fl">10.4</span>,</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">1</span>L, <span class="fl">13.72</span>,</span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">2</span>L, <span class="fl">15.91</span>,</span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">3</span>L,  <span class="fl">15.7</span>,</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">4</span>L,  <span class="fl">14.2</span>,</span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">5</span>L,  <span class="fl">15.9</span>,</span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">6</span>L, <span class="fl">16.54</span>,</span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">7</span>L,    <span class="dv">18</span>,</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">8</span>L,  <span class="fl">14.4</span>,</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,   <span class="dv">9</span>L, <span class="fl">16.41</span>,</span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a>  <span class="st">"control"</span>,  <span class="dv">10</span>L,    <span class="dv">16</span></span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a>visitas <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(</span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>             <span class="sc">~</span><span class="st">`</span><span class="at">codigo</span><span class="st">`</span>,          <span class="sc">~</span>país, <span class="sc">~</span><span class="st">`</span><span class="at">n2</span><span class="st">`</span>,</span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a>             <span class="dv">1</span>L,     <span class="st">"Brazil"</span>,      <span class="dv">4303</span>L,</span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a>               <span class="dv">2</span>L,     <span class="st">"Mozambique"</span>,      <span class="dv">43</span>L,</span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a>               <span class="dv">3</span>L,       <span class="st">"Portugal"</span>,      <span class="dv">33</span>L,</span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a>               <span class="dv">4</span>L,  <span class="st">"United States"</span>,      <span class="dv">23</span>L,</span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a>               <span class="dv">5</span>L,         <span class="st">"Angola"</span>,      <span class="dv">19</span>L,</span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a>               <span class="dv">6</span>L,          <span class="st">"Spain"</span>,      <span class="dv">16</span>L,</span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a>               <span class="dv">7</span>L,      <span class="st">"(not set)"</span>,      <span class="dv">12</span>L,</span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a>               <span class="dv">8</span>L,       <span class="st">"Colombia"</span>,       <span class="dv">8</span>L,</span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a>               <span class="dv">9</span>L,        <span class="st">"Germany"</span>,       <span class="dv">5</span>L,</span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a>              <span class="dv">10</span>L,        <span class="st">"Hungary"</span>,       <span class="dv">5</span>L,</span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>              <span class="dv">11</span>L, <span class="st">"United Kingdom"</span>,       <span class="dv">5</span>L,</span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a>              <span class="dv">12</span>L,    <span class="st">"Netherlands"</span>,       <span class="dv">4</span>L,</span>
-<span id="cb9-66"><a href="#cb9-66" aria-hidden="true" tabindex="-1"></a>              <span class="dv">13</span>L,        <span class="st">"Ecuador"</span>,       <span class="dv">3</span>L,</span>
-<span id="cb9-67"><a href="#cb9-67" aria-hidden="true" tabindex="-1"></a>              <span class="dv">14</span>L,         <span class="st">"France"</span>,       <span class="dv">3</span>L,</span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a>              <span class="dv">15</span>L,          <span class="st">"Chile"</span>,       <span class="dv">2</span>L,</span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>              <span class="dv">16</span>L,       <span class="st">"Paraguay"</span>,       <span class="dv">2</span>L,</span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>              <span class="dv">17</span>L,           <span class="st">"Peru"</span>,       <span class="dv">2</span>L,</span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>              <span class="dv">18</span>L,      <span class="st">"Argentina"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>              <span class="dv">19</span>L,        <span class="st">"Austria"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>              <span class="dv">20</span>L,        <span class="st">"Bolivia"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>              <span class="dv">21</span>L,     <span class="st">"Cape Verde"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>              <span class="dv">22</span>L,          <span class="st">"China"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>              <span class="dv">23</span>L,          <span class="st">"Egypt"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>              <span class="dv">24</span>L,        <span class="st">"Finland"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>              <span class="dv">25</span>L,          <span class="st">"India"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>              <span class="dv">26</span>L,          <span class="st">"Italy"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>              <span class="dv">27</span>L,       <span class="st">"Malaysia"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a>              <span class="dv">28</span>L,       <span class="st">"Pakistan"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a>              <span class="dv">29</span>L,         <span class="st">"Poland"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>              <span class="dv">30</span>L,      <span class="st">"Singapore"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a>              <span class="dv">31</span>L,    <span class="st">"Timor-Leste"</span>,       <span class="dv">1</span>L,</span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a>              <span class="dv">32</span>L,        <span class="st">"Uruguay"</span>,       <span class="dv">1</span>L</span>
-<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a>             )</span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>Cargar conjunto usando *tribble* es una función útil en R para la creación rápida y estructurada de data frames, especialmente adecuada cuando se trabajan con datos simulados o cuando es necesario definir manualmente conjuntos de datos pequeños o medianos directamente en el código.</span>
-<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
-<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a>pepper <span class="ot">&lt;-</span> </span>
-<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tribble</span>(</span>
-<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>   <span class="sc">~</span>t,  <span class="sc">~</span><span class="st">`</span><span class="at">Extrato1</span><span class="st">`</span>,  <span class="sc">~</span><span class="st">`</span><span class="at">Extrato2</span><span class="st">`</span>,  <span class="sc">~</span><span class="st">`</span><span class="at">Extrato3</span><span class="st">`</span>,</span>
-<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a>   <span class="dv">0</span>,  <span class="fl">0.08</span>, <span class="fl">0.001</span>, <span class="fl">0.001</span>,</span>
-<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>   <span class="dv">7</span>,  <span class="fl">0.13</span>,  <span class="fl">0.01</span>, <span class="fl">0.001</span>,</span>
-<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a>  <span class="dv">14</span>,  <span class="fl">0.78</span>,  <span class="fl">0.09</span>,  <span class="fl">0.01</span>,</span>
-<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a>  <span class="dv">21</span>,  <span class="fl">0.92</span>,  <span class="fl">0.25</span>,  <span class="fl">0.05</span>,</span>
-<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a>  <span class="dv">28</span>,  <span class="fl">0.99</span>,   <span class="fl">0.8</span>,  <span class="fl">0.18</span>,</span>
-<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a>  <span class="dv">35</span>, <span class="fl">0.995</span>,  <span class="fl">0.98</span>,  <span class="fl">0.34</span>,</span>
-<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a>  <span class="dv">42</span>, <span class="fl">0.999</span>,  <span class="fl">0.99</span>,  <span class="fl">0.48</span>,</span>
-<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a>  <span class="dv">49</span>, <span class="fl">0.999</span>, <span class="fl">0.999</span>,  <span class="fl">0.74</span></span>
-<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a>Anotate se utiliza para agregar texto explicativo directamente en el gráfico, como etiquetas o números.</span>
-<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a>pepper <span class="sc">|&gt;</span> </span>
-<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(<span class="dv">2</span><span class="sc">:</span><span class="dv">4</span>,  <span class="co">#se utiliza para reorganizar datos de formato ancho a largo, lo cual es útil para análisis y visualizaciones específicas.</span></span>
-<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a>               <span class="at">names_to =</span> <span class="st">"epidemic"</span>,</span>
-<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a>               <span class="at">values_to =</span> <span class="st">"inc"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(t, inc, <span class="at">color =</span> epidemic))<span class="sc">+</span></span>
-<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()<span class="sc">+</span></span>
-<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>()<span class="sc">+</span> <span class="co">#permiten crear gráficos de dispersión con líneas, destacando diferentes categorías (epidemic) con colores distintos.</span></span>
-<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"text"</span>,</span>
-<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="dv">12</span>,</span>
-<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="fl">0.75</span>,</span>
-<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"1"</span>)<span class="sc">+</span></span>
-<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="at">geom =</span> <span class="st">"text"</span>,</span>
-<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a>           <span class="at">x =</span> <span class="dv">25</span>,</span>
-<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a>           <span class="at">y =</span> <span class="fl">0.75</span>,</span>
-<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"2"</span>)<span class="sc">+</span></span>
-<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>) <span class="co">#se utiliza para agregar texto explicativo directamente en el gráfico, como etiquetas o números.</span></span>
-<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a><span class="fu"># Tabla de contingencia Las tablas de contingencia son herramientas muy útiles en análisis de datos categóricos, ya que permiten resumir y analizar la relación entre dos o más variables categóricas. En R, son fáciles de crear y analizar utilizando funciones como table() y chisq.test()</span></span>
-<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a>cr <span class="ot">&lt;-</span><span class="fu">read.csv</span>(<span class="st">"https://raw.githubusercontent.com/emdelponte/paper-coffee-rust-Ethiopia/master/data/survey_clean.csv"</span>)</span>
-<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(janitor)</span>
-<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a>cr <span class="sc">|&gt;</span> </span>
-<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a> <span class="fu">tabyl</span>(cultivar, farm_management) <span class="do">## Crear una tabla de contingencia usando tabyl()</span></span>
-<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggthemes)</span>
-<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (ggplot2)</span>
-<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span> (tidyverse)</span>
-<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a>cr <span class="sc">|&gt;</span> </span>
-<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(farm_management, cultivar) <span class="sc">|&gt;</span> <span class="co"># pipe para pasar el data frame cr a la función count() </span></span>
-<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span> (<span class="fu">aes</span>(cultivar, n, <span class="at">fill =</span> farm_management, <span class="at">label =</span>n))<span class="sc">+</span> <span class="co">#Cuenta las combinaciones únicas de farm_management y cultivar, creando un nuevo data frame con una columna n que contiene los conteos para cada combinación.</span></span>
-<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_dodge2</span> (<span class="at">width =</span> <span class="fl">0.9</span>)) <span class="sc">+</span> <span class="co"># Crea un gráfico de barras donde la altura de las barras representa los valores de n.</span></span>
-<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_canva</span>()<span class="sc">+</span> <span class="co">#Aplica una paleta de colores específica de Canva a las barras del gráfico</span></span>
-<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()<span class="sc">+</span></span>
-<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.text.x =</span> <span class="fu">element_blank</span>(),</span>
-<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"top"</span>)<span class="sc">+</span></span>
-<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.9</span>)) <span class="sc">+</span> <span class="co">#Desplaza las barras lateralmente para que no se superpongan. width = 0.9 ajusta el grado de desplazamiento</span></span>
-<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>cultivar, <span class="at">scales =</span> <span class="st">"free_x"</span>) <span class="co">#Divide el gráfico en múltiples subgráficos (facetas), uno para cada nivel de cultivar.</span></span>
-<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div></div></div></div></div>
+</script>
 </div> <!-- /content -->
 <footer class="footer">
   <div class="nav-footer">
