@@ -1,0 +1,2 @@
+"0","ggplot(escala2, aes(reorder(assessment, acuracia), acuracia, group = rater)) + geom_point(stat = ""identity"", size = 3, shape = 1) +"
+"0","  geom_line(size = 1, color = ""gray70"") + facet_wrap(~rater, nrow = 5)"

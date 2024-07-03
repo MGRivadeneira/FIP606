@@ -1,0 +1,5 @@
+"0","# usando pipes"
+"0","data_mg |>"
+"0","  ggplot(aes(trat, comp)) +"
+"0","  geom_jitter(width = 0.1, height = 0) +"
+"0","  ylim(5, 20) # ajusta y mejora la visualizacion "

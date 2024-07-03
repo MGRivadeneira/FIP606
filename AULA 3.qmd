@@ -1,0 +1,132 @@
+---
+title: "Graficos en ggplot"
+format: html
+editor: visual
+---
+
+*Visualización de datos* en análisis de datos, la visualización es una etapa fundamental que permite al usuario aprender y entender el conjunto de datos. La observación de los datos en una tabla no es determinante y poco se aprende y concluye acerca de los padrones, tendencia y asociaciones entre las variables, por esta razón, una visualización ordenada de los datos permite decidir al usuario que precisa mejorar, como por ejemplo si hay necesidad de transformar los datos, crear nuevas variables y definir los modelos estadisticos que serán usados para comprobar las hipotesis
+
+La visualizacion por medio de graficos debe ser iniciada en la fase de exploración y sumarizacion de los datos, aunque, de manera general, la idea de los graficos son apenas necesarios en la etapa de comunicación de los resultados. Son dos contextos diferentes que utilizan los procedimientos graficos
+
+El grafico debe ser simple, apropiado para responder a una determinada pregunta con la información basica para tomar decisiones posteriores en la interpretación de sus resultados, no es necesario que sean gráficos muy elaborados, mas el gráfico debe lograr que se realize una comunicacion efectiva
+
+En esta aula, los datos serán visualizados en R utilizando el paquete ggplot2 que es considerado el paquete mas completo para visualición de datos. En ggplot, los gráficos se construyen capa a capa. La primera capa viene dada por la función "ggplot()", donde se determina la estética de la distribución de los datos con los que se va a trabajar. La segunda capa viene dada por la función "geom\_()", que define el tipo de gráfico generado.
+
+```{r}
+library (tidyverse)
+library (ggthemes)
+library (dplyr)
+
+```
+
+##Importación de un conjunto de datos, estos datos estan en formato csv
+
+```{r}
+cr <- read.csv("https://raw.githubusercontent.com/emdelponte/paper-coffee-rust-Ethiopia/master/data/survey_clean.csv") #el conjunto de datos está en un arquivo csv en la  web.
+
+glimpse(cr)
+```
+
+## *Visualización de datos* Utilizamos la biblioteca *ggplot2* para visualizar los datos del conjunto
+
+Paquetes utilizados *ggplot2*: Principal paquete para crear gráficos en R usando la gramática de gráficos.*ggthemes*: Proporciona temas adicionales y escalas de color, incluyendo *scale_fill_colorblind*.
+
+```{r}
+cr |> 
+  ggplot(aes(x = sev2, fill = region))+ ## Define las estéticas (eje x y color de relleno)
+  geom_histogram(color = "white")+  # Añade un histograma con bordes blancos en las barras
+  facet_wrap(region ~ cultivar)+ # Crea facetas basadas en 'region' y 'cultivar'
+  scale_fill_colorblind()+ # Aplica una escala de color amigable 
+  theme_minimal(base_size = 14)+ # Aplica un tema minimalista con tamaño de fuente base 14
+  theme(legend.position = "bottom")+  # Coloca la leyenda en la parte inferior del gráfico
+   labs(y = "Frequency", # Etiqueta el eje y como 'Frequency'
+       x = "Severity (%)", fill = "Region")   # Etiqueta el eje x como 'Severity (%)'
+
+#ggsave("cr1.png", bg = "white")
+```
+
+##Sumarizar
+
+#Usando las funciones `group_by` y `summarize` para obtener datos sumarizados. Las funciones *group_by* y *summarize* son parte del paquete *dplyr* en R y se utilizan para realizar operaciones de agrupamiento y resumen en un data frame
+
+```{r}
+#Usar *$* es una manera eficiente y directa de acceder a una columna específica en un data frame en R. Esto permite realizar operaciones vectoriales, filtrar datos, y pasar la columna a otras funciones de R con facilidad.
+
+summary(cr$inc)
+
+cr |>
+  group_by(cultivar) |>
+  summarize(sev_med = median (sev2),#Calcula la mediana de sev2 para cada grupo.
+            sev_mean = mean (sev2), #Calcula la media de sev2 para cada grupo.
+            sev_sd = sd (sev2)) #Calcula la desviación estándar de sev2 para cada grupo.
+
+cr |>
+  ggplot(aes(inc, sev2))+
+  geom_point()
+
+
+```
+
+## Crear subconjuntos
+
+#Utiliza las funciones `select()` y `filter()` del paquete **dplyr** para seleccionar columnas y lineas, respectivamente. Estos códigos son útiles cuando necesitas trabajar con subconjuntos específicos de datos basados en condiciones específicas, como filtrar datos por regiones específicas antes de realizar análisis o visualizaciones específicas para cada región en particular
+
+```{r}
+# filtra Oromia
+cr_oromia <- cr |>
+  select(farm, region, cultivar, sev2) |> 
+  filter(region == "Oromia")
+cr_oromia
+# filtra SNNPR
+cr_pr <- cr |>
+  select(farm, region, cultivar, sev2) |> 
+  filter(region == "SNNPR")
+cr_pr
+
+```
+
+##Visualizar los subconjuntos
+
+##Gráficos ggplot para cada subconjunto
+
+```{r}
+
+p1 <- cr_oromia |> # #Utiliza el operador de pipe (|>) para pasar el data frame como el primer argumento de la función ggplot(), lo que permite encadenar operaciones.
+  ggplot(aes(cultivar, sev2, 
+             fill = cultivar))+  #Define los estéticos del gráfico. cultivar se mapea al eje x, sev2 al eje y, y cultivar se utiliza para el color de relleno (fill) de los boxplots
+  geom_boxplot()+ #Agrega capas geométricas al gráfico, en este caso, boxplots que muestran la distribución de sev2 para cada nivel de cultivar
+  theme_few()+ #Aplica un tema predefinido de ggplot2 para el gráfico.
+  scale_fill_few()+ #Define la escala de colores para fill, en este caso utilizando una paleta de colores predefinida por el tema theme_few
+  labs(x = "",
+       y = "Severity (%)")+ #Etiqueta los ejes del gráfico. En este caso, el eje x no tiene etiqueta (""), y el eje y está etiquetado como "Severity (%)".
+  coord_flip() #Cambia la orientación de los ejes, intercambiando el eje x con el eje y, lo que resulta en un gráfico de caja horizontal.
+
+p2 <- cr_pr |> 
+  ggplot(aes(cultivar, sev2, 
+             fill = cultivar))+
+  geom_boxplot()+
+  theme_few()+
+  scale_fill_few()+
+  labs(x = "",
+       y = "Severity (%)")+
+  coord_flip()
+p1
+p2
+
+```
+
+## El paquete patchwork, que facilita la combinación y personalización de múltiples gráficos en R.Estos códigos son útiles para combinar, personalizar y exportar gráficos en R de manera eficiente
+
+```{r}
+library(patchwork)
+
+(p1 / p2) + #Utiliza el operador / de patchwork para combinar los gráficos p1 y p2 en un diseño vertical. 
+  plot_layout(guides = 'collect',
+              axes = 'collect')+ #Configura la disposición de los ejes y las guías (leyendas) en el diseño combinado:
+  plot_annotation(title = "Coffe rust in Ethiopia",  #Título principal del gráfico
+                  caption = "source: Del Ponte (2022)",#Fuente de los datos, proporcionando contexto adicional.
+                  tag_levels = 'A') #Niveles de etiquetado para la anotación
+ggsave("patch1.png", width = 5, height = 4) #Guarda el gráfico combinado como un archivo de imagen PNG llamado "patch1.png", con un ancho de 5 pulgadas y una altura de 4 pulgadas.
+```
+
+\`\`\`

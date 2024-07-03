@@ -1,0 +1,81 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "FIP606_R para fitopatologos"
+  navbar:
+    pinned: true
+    left:
+      - text: Básico de R
+        menu:
+          - href: AULA 1.qmd
+            text: Comandos basicos
+          - href: AULA 2.qmd
+            text: Importación de datos 
+        
+      - text: Gráficos en R
+        menu: 
+        - href: AULA 3.qmd
+          text: Graficos en ggplot
+        - href: AULA 4.qmd 
+          text: Visualización de datos
+        - href: AULA 5.qmd
+          text: Sabatinas
+      - text: Análisis Estadisticos en R
+        menu: 
+        - href: AULA 6.qmd
+          text: Graficos de dispersión e histogramas I
+        - href: AULA 7.qmd
+          text: Graficos de dispersión e histogramas II
+        - href: AULA 8.qmd
+          text: Test t 
+        - href: AULA 9.qmd
+          text: Prueba parametrica y no parametrica 
+        - href: AULA 10.qmd
+          text: ANOVA Factor I, Test de Normalidad y Homostacidad, Test no parametrico
+        - href: AULA 11.qmd
+          text: ANOVA factorial
+        - href: AULA 12.qmd
+          text: ANOVA con bloques (DBC)
+        - href: AULA 13.qmd
+          text: Analisis de regresión
+        - href: AULA 14.qmd
+          text: Analisis de correlación
+        - href: AULA 15.qmd
+          text: Comparación de frecuencia
+        - href: AULA 17.qmd
+          text: Regresión no lineal y EC50
+      - text: Mapas en R
+        menu: 
+        - href: AULA 16.qmd
+          text: Construyendo mapas en R
+     
+  
+    right: 
+     - icon: github
+       href: https://github.com/MGRivadeneira
+     - icon: instagram
+       href: https://www.instagram.com/gabyrivadeneirac/
+    
+       
+
+  page-navigation: true
+  page-footer: 
+    center: "Copyright 2024, Marcia Rivadeneira ®"
+    background: light
+
+format:
+  html:
+    code-summary: "Codigo"
+    code-fold: true
+    code-tools: true
+    fontsize: 1.0em
+    theme:
+      light: minty
+      dark: vapor
+    css: styles.css
+    toc: true
+    warning: false
+
+editor: visual

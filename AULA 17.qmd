@@ -1,0 +1,93 @@
+---
+title: "Regresión no lineal y EC50"
+format: html
+editor: visual
+---
+
+## Regresión no lineal
+
+La regresión no lineal es un método para hallar un modelo no lineal de la relación entre una variable dependiente y un conjunto de variables independientes. A diferencia de la regresión lineal tradicional, que se limita a estimar modelos lineales, la regresión no lineal puede estimar modelos con relaciones arbitrarias entre variables independientes y dependientes. Para ello se utilizan algoritmos de estimación iterativos.
+
+```{r}
+library(gsheet)
+library(tidyverse)
+
+dat <- gsheet2tbl("https://docs.google.com/spreadsheets/d/15pCj0zljvd-TGECe67OMt6sa21xO8BqUgv4d-kU8qi8/edit#gid=0")
+
+dat
+```
+
+```{r}
+library(tidyverse)
+library (dplyr)
+library (agricolae)
+options(scipen=999)
+
+dat2<- dat |>
+        dplyr::select(-Isolate,-Population) |> 
+        group_by(Code, Year, Dose) |> 
+        summarise(GC_mean=mean(GC))
+```
+
+```{r}
+FGT152 <- dat2 |> 
+  filter(Code =="FGT152")
+
+FGT152 |> 
+  ggplot(aes(Dose, GC_mean))+
+  geom_point()+
+  geom_line()
+
+dat2 |> ggplot(aes(Dose, GC_mean))+
+  geom_point()+
+  geom_line()+
+  facet_wrap(~Code)
+
+
+```
+
+## EC50 con el paquete DRC
+
+El control efectivo del 50% de inhibición del crecimiento (EC 50) es un estadístico estándar para evaluar las relaciones dosis-respuesta. Existen muchos paquetes de software estadístico para estimar las relaciones dosis-respuesta, pero recientemente se ha utilizado un paquete de código abierto ("drc") en R. Este paquete es muy adaptable, tiene muchos modelos para describir las relaciones dosis-respuesta y la flexibilidad para describir las relaciones horméticas y la EC 50 absoluta y relativa. Referencia: https://apsjournals.apsnet.org/doi/full/10.1094/PDIS-06-17-0873-SR
+
+```{r}
+library(drc)
+
+drc1 <- drm(GC_mean ~ Dose, data = FGT152,
+    fct = LL.3())
+plot(drc1)
+summary(drc1)
+ED (drc1, 50)
+```
+
+### Otro ejemplo de modelo
+
+```{r}
+drc2 <- drm(GC_mean ~ Dose, data = FGT152,
+    fct = W1.3())
+plot(drc2)
+summary(drc2)
+ED (drc2, 50)
+
+```
+
+```{r}
+AIC (drc1, drc2)
+```
+
+```{r}
+library(ec50estimator)
+
+df_ec50 <- estimate_EC50 (GC_mean ~ Dose,
+                          data = dat2,
+                          isolate_col = "Code",
+                          interval = "delta",
+                          fct = drc::LL.3())
+
+df_ec50 |> 
+  ggplot(aes(Estimate, reorder (ID, Estimate)))+
+  geom_point()+
+  geom_errorbar(aes(xmin=Lower,
+                    xmax=Upper, width = 0.1))+
+  xlim(0,30)
+```

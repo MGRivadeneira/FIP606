@@ -1,0 +1,5 @@
+"0","data_mg |> "
+"0","  ggplot(aes(trat, comp)) +"
+"0","  geom_boxplot(outlier.color = NA) +"
+"0","  geom_jitter(width = 0.1, shape = 1)"
+"0",""

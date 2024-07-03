@@ -1,0 +1,149 @@
+---
+title: "Sabatinas"
+format: html
+editor: visual
+---
+
+Importación de datos:
+
+Se realizo un resumen sobre importación y visualizacion de datos. Los datos fueron importados desde Google Sheet utilizando el paquete 'gsheet' y la función gsheet2tbl(), los datos que contienen las notas de "sabatinas" de la clase FIP 606 I/2024
+
+```{r}
+ library (tidyverse)
+ library (gsheet)
+ notas <- gsheet2tbl("https://docs.google.com/spreadsheets/d/1bq2N19DcZdtax2fQW9OHSGMR0X2__Z9T/edit#gid=1092065531")
+ 
+ glimpse(notas)
+
+```
+
+Creación de subconjuntos y tablas de contingencia
+
+Para observar la cantidad y la frecuencia de cada calificación, se separo los datos de la prueba 1 de los de la prueba 2, utilizando la función "select()", seleccionando sólo las columnas "test" y "grade", y la función "filter()", separando la prueba 1 de la prueba 2. Luego se utilizo la función 'count ()'para contar la frecuencia de cada grado
+
+```{r}
+ 
+ notas1 <- notas |> 
+  select(prova, nota) |> 
+  filter(prova == "1")
+  notas1
+  
+
+  notas2 <- notas |> 
+  select(prova, nota) |> 
+  filter(prova == "2")
+  notas2
+  
+notas1 |> 
+  count(nota)
+
+notas2 |> 
+  count(nota)
+
+##Este conjunto de funciones se utiliza para filtrar un data frame original notas en dos subconjuntos (notas1 y notas2) basados en el valor de la prueba, y luego contar la frecuencia de cada valor de nota en estos subconjuntos.
+
+```
+
+Histogramas y resumen de incidencia
+
+Para observar los datos resumidos y hallar la media, la desviación estándar y la mediana, se utilizó la función 'group_by()' para agrupar los datos en 2 grupos (prova 1 y prova 2) y, a continuación, se utilizó la función 'summarise()' para hallar la media, la desviación estándar y la mediana por prueba.
+
+Para el análisis exploratorio, se realizó un histograma para cada prueba, utilizando la función "geom_histrogram()" para los subconjuntos creados. A continuación, los histogramas se combinaron en una sola imagen mediante la función "plot_layout()" del paquete "patchwork()".
+
+```{r}
+
+##Este código crea y visualiza dos histogramas (uno para notas1 y otro para notas2), cada uno con una línea vertical indicando la media de las notas. Los histogramas se personalizan con colores, anotaciones, y temas específicos. Finalmente, los dos gráficos se combinan en un solo diseño utilizando el paquete patchwork para una visualización conjunta.
+
+
+
+notas |>
+  group_by(prova)|>
+  summarise(nota_mean = mean (nota),
+            nota_sd = sd (nota),
+            nota_med = median (nota))
+
+media1 <- mean(notas1$nota)
+media2 <- mean (notas2$nota)
+
+library(ggthemes)
+p1 <- notas1 |>
+  ggplot(aes(x = nota)) + #Inicializa el gráfico con ggplot2, definiendo nota como la variable del eje x.
+  geom_histogram(bins = 5, fill = "orange", color = "white")+ #Crea un histograma con 5 bins, con las barras de color naranja y bordes blancos.
+  geom_vline(xintercept = media1, color = "red", linetype = "dashed") + # Añade una línea vertical discontinua roja en la posición de la media (media1).
+  scale_fill_canva() + #Aplica una paleta de colores específica de Canva.
+  theme_bw(base_size = 14) + #Aplica el tema theme_bw() con un tamaño base de 14.
+  theme (legend.position = "bottom") +  #Coloca la leyenda en la parte inferior
+  annotate (geom = "text",
+            x = 72,
+            y = 7.5,
+            label = "Mean") + #Añade una anotación de texto en la posición (72, 6.5) con el texto "Mean"
+  ylim (0, 10) +  #Define los límites del eje y entre 0 y 10.
+  labs (y = "Frequency", 
+        x= "Notas" , 
+        title = "Prova 1") #Define las etiquetas de los ejes y el título del gráfico.
+
+p2 <- notas2 |> 
+  ggplot(aes(x = nota)) + 
+  geom_histogram( bins = 5, fill = "blue" , color ="white")+   geom_vline(xintercept = media2, color = "red", linetype = "dashed") + 
+  scale_fill_canva()+
+  theme_bw(base_size = 14) + 
+  theme (legend.position = "bottom")+
+  annotate (geom = "text", 
+            x = 72,
+            y= 6.5, 
+            label = "Mean")+ 
+  ylim (0,10)+ 
+  labs (y = "Frequency",
+        x = "Notas",
+        title = "Prova 2")
+
+# patchwork, permite combinar múltiples gráficos creados con ggplot2
+
+library(patchwork)
+(p1 + p2)+ 
+  plot_layout(guides = "collect", 
+              axes = "collect")
+
+```
+
+Boxplot
+
+Se realizo otro análisis exploratorio como boxplot, utilizando la función 'geom_boxplot()'. Para que el gráfico considerara las dos pruebas "sabatinas" como diferentes, se utilizó 'factor()'para hacer de cada prueba un factor.
+
+```{r}
+
+##Este tipo de visualización es útil para comparar la distribución de una variable continua (en este caso, nota) entre diferentes categorías (en este caso, prova).
+
+notas|>
+  ggplot(aes (factor(prova), nota))+
+  geom_boxplot(fill = "lightpink")+
+  geom_jitter(width = 0.05) + 
+  labs (x = "Notas",
+        y = "Prova")+
+  ylim(0,100)
+
+
+
+```
+
+Errorbar
+
+Se realizo un gráfico de error utilizando las funciones 'geom_point()'y 'geom_errobar()'. Aprendí que estas funciones me ayudan a comprender la variabilidad de los datos, si evalúo la significación estadística de las diferencias entre "prova 1 e prova 2", comunicando los resultados del análisis
+
+```{r}
+#Este código crea un gráfico de puntos con barras de error que representan la media y la desviación estándar de las notas (nota) para cada prueba (prova).
+
+notas |>
+  group_by(prova) |> 
+  summarise(nota_mean = mean (nota), 
+            nota_sd = sd (nota)) |>
+  ggplot (aes(factor(prova), nota_mean, color = prova))+
+  theme_few()+
+  theme (legend.position = "none") + 
+  geom_point(size= 3)+
+  geom_errorbar(aes(ymin = nota_mean - nota_sd,
+                   ymax = nota_mean + nota_sd),
+                widt = 0.1) +
+  ylim (0,100)
+
+```

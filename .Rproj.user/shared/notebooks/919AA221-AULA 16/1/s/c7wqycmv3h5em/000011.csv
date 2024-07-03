@@ -1,0 +1,7 @@
+"0","# Separar la fecha en día, mes y año"
+"0","sbr2 <- sbr %>%"
+"0","  separate(planting, into = c(""year"", ""month"", ""day""), sep = ""-"", remove = FALSE)"
+"0",""
+"0",""
+"0",""
+"0",""

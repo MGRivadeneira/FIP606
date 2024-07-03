@@ -1,0 +1,27 @@
+---
+title: "Hola, ¡Bienvenido!"
+about:
+  template: jolla
+  id: about-block
+  image: "foto1.jpeg"
+  image-shape: round
+  links:
+    - icon: instagram
+      text: Instagram
+      href: https://www.instagram.com/gabyrivadeneirac/
+    - icon: linkedin
+      text: LinkedIn
+      href: https://www.linkedin.com/in/marcia-gabriela-rivadeneira-caballero-720b7368/
+    - icon: github
+      text: Github
+      href: https://github.com/MGRivadeneira
+    - icon: envelope
+      text: Email
+      href: "mailto:marcia.caballero@ufv.br"
+---
+
+¡Bienvenidos al sitio web R para Fitopatólogos!
+
+Soy Marcia Gabriela, investigadora agrícola con experiencia en Fitopatología y Biotecnología. He trabajado en el Centro Fitotécnico de Pairumani de la Fundación Simón I. Patiño, el Instituto de Investigaciones de Productos Naturales – IIPN UMSA, y el Centro de Investigación Agrícola Tropical (CIAT), donde fui responsable de laboratorios y proyectos de protección vegetal contra plagas y enfermedades. Actualmente, soy doctorante en la Universidad Federal de Vicosa.
+
+Este sitio ofrece recursos, conocimientos y colaboración en investigación fitopatológica. ¡Exploren, aprovechen las herramientas y participen activamente!

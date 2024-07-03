@@ -1,0 +1,157 @@
+---
+title: "Visualización de datos"
+Autor: Gaby Rivadeneira 
+format: html
+---
+
+Usando *datapasta* vamos a cargar datos en el ambiente El uso básico de datapasta implica seleccionar un objeto de datos en R (como un data frame) y copiarlo al portapapeles del sistema operativo. Luego, se puede pegar directamente en otro programa (por ejemplo, un editor de texto o una hoja de cálculo).
+
+```{r}
+
+comp <- c("9", "12.5", "10", "8", "13.2", "11", "10.8", "9.5", "10.8", "10.4", "13.72", "15.91", "15.7", "14.2", "15.9", "16.54", "18", "14.4", "16.41", "16")
+comp
+
+comp <- c(9, 12.5, 10, 8, 13.2, 11, 10.8, 9.5, 10.8, 10.4, 13.72, 15.91, 15.7, 14.2, 15.9, 16.54, 18, 14.4, 16.41, 16)
+
+dat <- data.frame(
+  stringsAsFactors = FALSE,
+              trat = c("Mg2","Mg2","Mg2","Mg2",
+                       "Mg2","Mg2","Mg2","Mg2","Mg2","Mg2","control",
+                       "control","control","control","control","control",
+                       "control","control","control","control"),
+               rep = c(1L,2L,3L,4L,5L,6L,7L,8L,
+                       9L,10L,1L,2L,3L,4L,5L,6L,7L,8L,9L,10L),
+              comp = c(9,12.5,10,8,13.2,11,10.8,
+                       9.5,10.8,10.4,13.72,15.91,15.7,14.2,15.9,16.54,
+                       18,14.4,16.41,16))
+
+dat2 <- tibble::tribble(
+      ~trat, ~rep, ~comp,
+      "Mg2",   1L,     9,
+      "Mg2",   2L,  12.5,
+      "Mg2",   3L,    10,
+      "Mg2",   4L,     8,
+      "Mg2",   5L,  13.2,
+      "Mg2",   6L,    11,
+      "Mg2",   7L,  10.8,
+      "Mg2",   8L,   9.5,
+      "Mg2",   9L,  10.8,
+      "Mg2",  10L,  10.4,
+  "control",   1L, 13.72,
+  "control",   2L, 15.91,
+  "control",   3L,  15.7,
+  "control",   4L,  14.2,
+  "control",   5L,  15.9,
+  "control",   6L, 16.54,
+  "control",   7L,    18,
+  "control",   8L,  14.4,
+  "control",   9L, 16.41,
+  "control",  10L,    16
+  )
+visitas <- tibble::tribble(
+             ~`codigo`,          ~país, ~`n2`,
+             1L,     "Brazil",      4303L,
+               2L,     "Mozambique",      43L,
+               3L,       "Portugal",      33L,
+               4L,  "United States",      23L,
+               5L,         "Angola",      19L,
+               6L,          "Spain",      16L,
+               7L,      "(not set)",      12L,
+               8L,       "Colombia",       8L,
+               9L,        "Germany",       5L,
+              10L,        "Hungary",       5L,
+              11L, "United Kingdom",       5L,
+              12L,    "Netherlands",       4L,
+              13L,        "Ecuador",       3L,
+              14L,         "France",       3L,
+              15L,          "Chile",       2L,
+              16L,       "Paraguay",       2L,
+              17L,           "Peru",       2L,
+              18L,      "Argentina",       1L,
+              19L,        "Austria",       1L,
+              20L,        "Bolivia",       1L,
+              21L,     "Cape Verde",       1L,
+              22L,          "China",       1L,
+              23L,          "Egypt",       1L,
+              24L,        "Finland",       1L,
+              25L,          "India",       1L,
+              26L,          "Italy",       1L,
+              27L,       "Malaysia",       1L,
+              28L,       "Pakistan",       1L,
+              29L,         "Poland",       1L,
+              30L,      "Singapore",       1L,
+              31L,    "Timor-Leste",       1L,
+              32L,        "Uruguay",       1L
+             )
+
+```
+
+Cargar conjunto usando *tribble* es una función útil en R para la creación rápida y estructurada de data frames, especialmente adecuada cuando se trabajan con datos simulados o cuando es necesario definir manualmente conjuntos de datos pequeños o medianos directamente en el código.
+
+```{r}
+library(tidyverse)
+pepper <- 
+  tribble(
+   ~t,  ~`Extrato1`,  ~`Extrato2`,  ~`Extrato3`,
+   0,  0.08, 0.001, 0.001,
+   7,  0.13,  0.01, 0.001,
+  14,  0.78,  0.09,  0.01,
+  21,  0.92,  0.25,  0.05,
+  28,  0.99,   0.8,  0.18,
+  35, 0.995,  0.98,  0.34,
+  42, 0.999,  0.99,  0.48,
+  49, 0.999, 0.999,  0.74
+  )
+```
+
+Anotate se utiliza para agregar texto explicativo directamente en el gráfico, como etiquetas o números.
+
+```{r}
+pepper |> 
+  pivot_longer(2:4,  #se utiliza para reorganizar datos de formato ancho a largo, lo cual es útil para análisis y visualizaciones específicas.
+               names_to = "epidemic",
+               values_to = "inc") |> 
+  ggplot(aes(t, inc, color = epidemic))+
+  geom_point()+
+  geom_line()+ #permiten crear gráficos de dispersión con líneas, destacando diferentes categorías (epidemic) con colores distintos.
+  annotate(geom = "text",
+           x = 12,
+           y = 0.75,
+           label = "1")+
+  annotate(geom = "text",
+           x = 25,
+           y = 0.75,
+           label = "2")+
+  theme(legend.position = "none") #se utiliza para agregar texto explicativo directamente en el gráfico, como etiquetas o números.
+
+
+```
+
+# Tabla de contingencia Las tablas de contingencia son herramientas muy útiles en análisis de datos categóricos, ya que permiten resumir y analizar la relación entre dos o más variables categóricas. En R, son fáciles de crear y analizar utilizando funciones como table() y chisq.test()
+
+```{r}
+cr <-read.csv("https://raw.githubusercontent.com/emdelponte/paper-coffee-rust-Ethiopia/master/data/survey_clean.csv")
+
+
+library(janitor)
+cr |> 
+ tabyl(cultivar, farm_management) ## Crear una tabla de contingencia usando tabyl()
+```
+
+```{r}
+library(ggthemes)
+library (ggplot2)
+library (tidyverse)
+cr |> 
+  count(farm_management, cultivar) |> # pipe para pasar el data frame cr a la función count() 
+  ggplot (aes(cultivar, n, fill = farm_management, label =n))+ #Cuenta las combinaciones únicas de farm_management y cultivar, creando un nuevo data frame con una columna n que contiene los conteos para cada combinación.
+  geom_col(position = position_dodge2 (width = 0.9)) + # Crea un gráfico de barras donde la altura de las barras representa los valores de n.
+  scale_fill_canva()+ #Aplica una paleta de colores específica de Canva a las barras del gráfico
+  theme_bw()+
+  theme(strip.text.x = element_blank(),
+        legend.position = "top")+
+  geom_text(position = position_dodge(width = 0.9)) + #Desplaza las barras lateralmente para que no se superpongan. width = 0.9 ajusta el grado de desplazamiento
+  facet_wrap(~cultivar, scales = "free_x") #Divide el gráfico en múltiples subgráficos (facetas), uno para cada nivel de cultivar.
+
+
+```

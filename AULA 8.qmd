@@ -1,0 +1,74 @@
+---
+title: "Test t"
+format: html
+editor: visual
+---
+
+##Importación de datos se trabajo con un conjunto de datos de *dados-diversos* para aplicar la "prueba t". La hipotesis de nuestro conjunto de datos de Magnesio, es que es beneficioso para la planta y reduce el tamaño de la lesión
+
+```{r}
+library(tidyverse)
+library(readxl)
+
+ mg <- read_excel("dados-diversos.xlsx")
+ 
+```
+
+```{r}
+mg |> 
+  ggplot(aes(trat, comp))+
+  geom_jitter(width =0.05)+
+  geom_boxplot(fill = NA, 
+               outlier.colour = NA)+
+  ylim(5, 20)+
+  annotate(geom = "text",
+           x = 0.7, y = 19,
+           label = "t = 8.12; P < 0.001;")
+```
+
+```{r}
+mg |> 
+  
+  ggplot(aes(trat, comp))+
+  stat_summary(fun.data = "mean_se")
+```
+
+```{r}
+mg2 <- mg |> 
+  pivot_wider(1, 
+              names_from = trat,
+              values_from = comp)
+```
+
+## Test t
+
+La función *test t* compara dos medias, permitiendo inferir si las diferencias entre ellas son significativas. La necesidad de determinar si dos medias muestrales son diferentes entre sí es una situación muy frecuente en el analisis de datos de la investigación cientifica. Como cualquier prueba estadística, la prueba t también tiene el valor p como producto. En otras palabras, calculamos la probabilidad de que la diferencia encontrada (entre las medias) se deba al azar
+
+```{r}
+t <- t.test(mg2$Mg2, mg2$control)
+
+# Si el valor p es inferior al 5% (p < 0,05), la tendencia científica consiste en rechazar la hipótesis de que las diferencias se deben al azar (rechazar la hipótesis nula) y afirmar que se ha encontrado una diferencia estadísticamente significativa.
+
+library(report)
+report(t)
+
+#Paquete "report" -> Este paquete convierte modelos estadísticos y tablas de datos en informes textuales aptos para su publicación, garantizando la normalización y la calidad en la presentación de los resultados.
+```
+
+```{r}
+
+library(infer)
+mg |> 
+  t_test(comp ~ trat,
+         order = c("control", "Mg2"))
+
+resultado <- mg |>
+  t_test(comp ~ trat, order = c("control", "Mg2"))
+
+
+
+#Paquete infer proporciona herramientas potentes para realizar pruebas de hipótesis, calcular intervalos de confianza y realizar comparaciones entre grupos de datos
+
+```
+
+https://www.datanovia.com/en/lessons/t-test-in-r/

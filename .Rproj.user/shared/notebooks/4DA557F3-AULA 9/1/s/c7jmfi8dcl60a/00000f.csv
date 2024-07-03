@@ -1,0 +1,3 @@
+"0","# organizacion de los datos"
+"0","escala2 <- select(escala, assessment, rater, acuracia)"
+"0","escala3 <- spread(escala2, assessment, acuracia)"

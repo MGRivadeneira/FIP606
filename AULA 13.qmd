@@ -1,0 +1,107 @@
+---
+title: "Analisis de Regresión"
+format: html
+editor: visual
+---
+
+## Analisis de regresión
+
+El análisis de regresión es una técnica estadística utilizada para investigar la relación entre variables mediante la construcción de una ecuación (un modelo). En general, esta técnica puede utilizarse con diversos fines, entre ellos: describir la relación entre variables para comprender un proceso o fenómeno; predecir el valor de una variable a partir del conocimiento de los valores de las demás variables; sustituir la medición de una variable por la observación de los valores de otras variables; controlar los valores de una variable dentro de un intervalo de interés.
+
+### Regresión
+
+Slope (pendiente) diferente al ángulo 0.
+
+### Anova
+
+Para variables categóricas/comparación.
+
+```{r}
+warning(FALSE)
+
+library(tidyverse)
+library(readxl)
+
+estande <- read_excel("dados-diversos.xlsx","estande")
+
+estande |> ggplot (aes(trat,nplants))+
+  geom_point()+
+  facet_wrap(~exp)+
+  ylim(0,max(estande$nplants))+
+  geom_smooth(se=F, method="lm")
+```
+
+```{r}
+#Experimento 1
+
+exp1<-estande |> filter (exp==1)
+m1<-lm(nplants~trat,data=exp1)
+summary(m1)
+
+g1 <- exp1 |> 
+  ggplot(aes(trat,nplants))+
+  geom_point()+
+  geom_smooth(method="lm",se=F)+
+  annotate(geom="text",x=24,
+           y=70,label="y=52,5-0,24x")
+```
+
+```{r}
+#Experimento 2
+
+exp2<-estande |> filter (exp==2)
+m2<-lm(nplants~trat,data=exp2)
+summary(m2)
+
+g2 <- exp2 |> 
+  ggplot(aes(trat,nplants))+
+  geom_point()+
+  geom_smooth(method="lm",se=F)+
+  annotate(geom="text",x=24,
+           y=70,label="y=60,9-0,7x")
+```
+
+```{r}
+#Experimento 3
+
+exp3<-estande |> filter (exp==3)
+m3<-lm(nplants~trat,data=exp3)
+summary(m3)
+
+g3 <- exp3 |> 
+  ggplot(aes(trat,nplants))+
+  geom_point()+
+  geom_smooth(method="lm",se=F)+
+  annotate(geom="text",x=24,
+           y=70,label="y=95,75-0,76x")
+```
+
+```{r}
+library(patchwork)
+
+g1|g2|g3
+```
+
+```{r}
+library(lme4)
+mix <- lmer(nplants ~ trat + (trat | exp), 
+            data = estande)
+summary(mix)
+library(car)
+Anova(mix)
+
+```
+
+```{r}
+lm1 <- lm(nplants ~ trat, data = exp3)
+summary(lm1)
+glm1 <- glm(nplants ~ trat, family = "gaussian",
+            data = exp3)
+glm2 <- glmer(nplants ~ trat + (1 | bloco), family = poisson(link = "log"),
+            data = exp3)
+AIC(glm1)
+AIC(glm2)
+
+summary(glm1)
+summary(glm2)
+```

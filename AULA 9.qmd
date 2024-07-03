@@ -1,0 +1,262 @@
+---
+title: "Prueba parametrica y no parametrica"
+format: html
+editor: visual
+---
+
+En este apartado veremos formas de analizar los datos en experimentos en los que se controlan al máximo las causas de variación de la respuesta y se minimiza el error experimental. Veremos los tipos de análisis según el número y el tipo de variables independientes (niveles de los factores) y también el número de tratamientos o grupos a comparar. Iniciaremos con casos simples en cuanto al número de grupos y avanzaremos a medida que aumentemos la complejidad del experimento, así como algunas posibles variaciones en cuanto al número y tipo de variables de respuesta de interés.
+
+### Dos tratamientos independientes
+
+Un investigador realizó un experimento con el objetivo de evaluar el efecto de un micronutriente, el magnesio (Mg), añadido la solución al suelo cultivado con plantas de arroz, sobre la gestión de una enfermedad fúngica. Se realizó un diseño completamente aleatorizado con 10 repeticiones, siendo cada repetición una maceta. Uno de los tratamientos es el llamado control, o testigo, sin el suplemento mineral. El segundo es el que lleva el suplemento de Mg a una dosis de 2 mM. En cada una de las réplicas se obtuvo un valor medio de la longitud de las lesiones en un momento determinado tras la inoculación.
+
+### Preparación de preanalisis
+
+```{r}
+library(magrittr) # para usar pipes
+library(ggplot2) # para gráficos
+library(dplyr)
+library(readxl)
+library(tidyr)
+library (emmeans)
+```
+
+```{r}
+data_mg <- read_excel("dados-diversos.xlsx")
+```
+
+La forma más sencilla es visualizar, en el caso de más de 6 repeticiones, mediante boxplots junto con los datos de cada repetición.
+
+```{r}
+data_mg |> 
+  ggplot(aes(trat, comp)) +
+  geom_boxplot(outlier.color = NA) +
+  geom_jitter(width = 0.1, shape = 1)
+
+```
+
+Vamos a obtener estadísticos que describan el conjunto, ya sea la tendencia central o la dispersión de los datos. En este caso, serán la media, la varianza, la desviación típica, el error típico y el intervalo de confianza, este último para la inferencia visual.
+
+```{r}
+dat2 <- data_mg |> 
+  group_by(trat) |> 
+  summarise(mean_comp = mean(comp),
+    sd_comp = sd(comp),
+    var_comp = var(comp),
+    n = n(),
+    se_comp = sd_comp / sqrt(n - 1),
+    ci = se_comp * qt(0.025, df = 9) # paramétrico
+  )
+dat2
+```
+
+Ahora podemos visualizar los datos con las estadísticas calculadas. Abajo, las barras verticales representan el intervalo de confianza del 95%.
+
+```{r}
+dat2 |>
+  ggplot(aes(trat, mean_comp)) +
+  geom_jitter(
+    data = data_mg, aes(trat, comp),
+    color = "grey",
+    width = 0.05
+  ) +
+  geom_errorbar(aes(
+    ymin = mean_comp - ci,
+    ymax = mean_comp + ci
+  ),
+  width = 0.05
+  ) +
+  geom_point(size = 3)
+```
+
+El conjunto está en formato largo, por lo que la variable de respuesta de interés sólo está en una columna. Hay varias formas de separar los datos de respuesta para cada tratamiento en dos vectores. Una es utilizar la función `spread` del paquete `tidyr`, que coloca las respuestas en dos columnas, una para cada tratamiento. Creemos el conjunto `data_mg2`.
+
+```{r}
+data_mg2 <- data_mg |>
+  spread(trat, comp)
+data_mg2
+```
+
+## Análisis inferencial
+
+Utilizando el conjunto original, vamos a visualizar las respuestas (tamaño de la lesión) para cada tratamiento, ya que `ggplot2` requiere los datos en formato ancho.
+
+```{r}
+# usando pipes
+data_mg |>
+  ggplot(aes(trat, comp)) +
+  geom_jitter(width = 0.1, height = 0) +
+  ylim(5, 20) # ajusta y mejora la visualizacion 
+```
+
+### Homoscedasticidad
+
+En el caso de dos grupos, la función que puede utilizar es `var.test` en R. Utilicemos el formato amplio y llamemos a los dos vectores del conjunto. Compruebe el valor P en la salida del análisis.
+
+```{r}
+attach(data_mg2) # vamos a facilitar el uso  de dos vectores
+var.test(Mg2, control)
+
+```
+
+### Normalidad
+
+La normalidad puede comprobarse mediante procedimientos visuales y pruebas específicas.
+
+```{r}
+shapiro.test(Mg2)
+shapiro.test(control)
+```
+
+Analisis visual de la normalidad
+
+```{r}
+qqnorm(Mg2)
+qqline(Mg2)
+```
+
+```{r}
+qqnorm(control)
+qqline(control)
+```
+
+```{r}
+
+magnesio3 <- data_mg |>
+  group_by(trat) |>
+  summarize(
+    mu = mean(comp),
+    sd = sd(comp),
+    n = length(comp),
+    se = sd / sqrt(n),
+    ciu = mu + (qt(0.025, df = n - 1) * se),
+    cil = mu - (qt(0.025, df = n - 1) * se)
+  )
+```
+
+### Intervalo de confianza
+
+```{r}
+magnesio3 %>%
+  ggplot(aes(trat, mu, color = trat)) +
+  geom_point(size = 3) +
+  ylim(7,20)+
+  geom_errorbar(aes(min = cil, max = ciu), width = 0.05, size = 1) +
+  labs(x = "Tratamento", y = "Valor", title = "Magnesium effect on lesion expansion")
+```
+
+### Test de hipotesis
+
+```{r}
+
+t.test(Mg2, control, paired = F)
+```
+
+### Alternativas
+
+Si no se cumplieran los supuestos de normalidad, ¿qué prueba podría utilizarse? En este caso de dos grupos hay dos posibilidades, una es utilizar una prueba no paramétrica o una prueba basada en el bootstrapping de los datos, ambas independientes del modelo de distribución.
+
+Utilizando los mismos datos podemos ver que el resultado es idéntico pero con diferentes valores P.
+
+# Dos tratamientos dependientes
+
+Se realizó un experimento para evaluar el efecto de la utilización de la escala en la exactitud y precisión de las evaluaciones visuales de la gravedad por parte de los evaluadores. La hipótesis que se pretendía comprobar era que las evaluaciones realizadas con ayuda de una escala de diagramas eran más precisas que las realizadas sin dicha ayuda. Se eligieron al azar diez evaluadores, cada uno de los cuales realizó dos evaluaciones. Se obtuvieron cinco variables que constituyen la medida de concordancia de las estimaciones. Dado que las mediciones se repitieron a lo largo del tiempo para cada evaluador, las muestras son de tipo dependiente.
+
+## Preparación de pre-analisis
+
+```{r}
+escala <- read_excel("dados-diversos.xlsx", "escala")
+head(escala)
+```
+
+```{r}
+escala |>
+  gather(component, statistics, 3:7) |> # formato ancho
+  ggplot(aes(reorder(assessment, statistics), statistics)) +
+  geom_jitter(width = 0.05) +
+  facet_wrap(~component, scales = "free_y")
+```
+
+Vamos a preparar los datos para el análisis.  Los vectores fueron creados de cada grupo para cada variable.
+
+```{r}
+# organizacion de los datos
+escala2 <- select(escala, assessment, rater, acuracia)
+escala3 <- spread(escala2, assessment, acuracia)
+```
+
+### Premisas
+
+```{r}
+## homocedasticidad de los grupos
+attach(escala3)
+var.test(Aided1, Unaided)
+
+## normalidad
+shapiro.test(Aided1)$p.value
+shapiro.test(Unaided)$p.value
+```
+
+```{r}
+qqnorm(Aided1)
+qqline(Aided1)
+```
+
+```{r}
+qqnorm(Unaided)
+qqline(Unaided)
+```
+
+### Analisis inferencial
+
+```{r}
+escala4 <- summarize(group_by(escala2, assessment),
+  mu = mean(acuracia),
+  sd = sd(acuracia),
+  n = length(acuracia),
+  se = sd / sqrt(n),
+  ciu = mu + (qt(0.025, df = n - 1) * se),
+  cil = mu - (qt(0.025, df = n - 1) * se)
+)
+```
+
+Visualiza me dia e intervalo de confianza
+
+```{r}
+ggplot(escala4, aes(assessment, mu)) +
+  geom_point(stat = "identity", size = 4) +
+  geom_errorbar(aes(min = cil, max = ciu),
+    width = .05
+  )
+```
+
+Visualiza a cada evaluador
+
+```{r}
+ggplot(escala2, aes(reorder(assessment, acuracia), acuracia, group = rater)) + geom_point(stat = "identity", size = 3, shape = 1) +
+  geom_line(size = 1, color = "gray70") + facet_wrap(~rater, nrow = 5)
+```
+
+### Test t paramétrico
+
+Tenga en cuenta que las muestras están emparejadas: el mismo evaluador en dos momentos, por lo que existe dependencia.
+
+```{r}
+## test t para muestras pareadas
+t_escala <- t.test(escala3$Aided1, escala3$Unaided,
+  paired = TRUE,
+  var.equal = F
+)
+
+t_escala
+```
+
+## Test no paramétrico
+
+### wilcox. test
+
+La prueba t de Wilcoxon sustituye a la prueba t de Student para muestras pareadas cuando los datos no cumplen los requisitos de esta última. También fue desarrollada por F. Wilcoxon en 1945 y se basa en los rangos de las diferencias intrapares. La prueba de Wilcoxon (Wilcoxon Matched-Pairs; Wilcoxon signed-ranks test) es un método no paramétrico para comparar dos muestras pareadas. En un primer momento, se calculan los valores numéricos de la diferencia entre cada par, con tres condiciones posibles: aumento (+), disminución (-) o igualdad (=). Una vez calculadas todas las diferencias entre los valores obtenidos para cada par de datos, estas diferencias se ordenan por su valor absoluto (sin tener en cuenta el signo), y a continuación se sustituyen los valores originales por la posición que ocupan en la escala ordenada. La prueba de la hipótesis de igualdad entre los grupos se basa en la suma de los rangos de las diferencias negativas y positivas.
+
+```{r}
+wilcox.test(escala3$Aided1, escala3$Unaided, paired = TRUE)
+```

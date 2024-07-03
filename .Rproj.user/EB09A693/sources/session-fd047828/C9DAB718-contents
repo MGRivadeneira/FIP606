@@ -1,0 +1,135 @@
+---
+title: "Graficos de dispersion e histogramas I"
+format: html
+editor: visual
+---
+
+```{r}
+library (tidyverse)
+library (readxl)
+
+fungicida <- read_excel("dados-diversos.xlsx", 6)
+fungicida <- read_excel("dados-diversos.xlsx","fungicida_campo")
+```
+
+## Gráficos de dispersión
+
+El gráfico de dispersión es una herramienta muy utilizada en estadística para visualizar la relación entre dos variables cuantitativas. Al trazar los puntos en el gráfico, es posible detectar patrones y tendencias en los datos, así como identificar posibles correlaciones entre las variables.
+
+```{r}
+
+fungicida |> 
+  ggplot(aes(trat, sev))+
+  geom_jitter(width = 0.1,
+              color = "gray60")+
+  stat_summary(fun = mean,
+               color = "red")
+
+```
+
+```{r}
+fungicida |> 
+  ggplot(aes(sev, yld, 
+             color = trat,
+             size = yld))+
+  geom_point() #Esta función añade puntos al gráfico. Cada punto representa una observación en el conjunto de datos.
+```
+
+```{r}
+fungicida |> ggplot(aes(sev, yld, 
+                        color = trat))+
+  geom_point(size = 3)
+```
+
+```{r}
+fungicida |> ggplot(aes(sev, yld))+
+  geom_point(size = 2)+
+  geom_smooth(method = "lm") #esta función se utiliza para añadir una línea de tendencia (o curva de ajuste) a un gráfico. En este caso, el método "lm" especifica que se debe usar una regresión lineal (lm = linear model) para calcular la línea de tendencia
+```
+
+```{r}
+
+library(ggthemes)
+fungicida |> ggplot(aes(sev, yld))+
+  geom_point(size = 2,
+             color = "gray20")+
+  geom_smooth(method = "lm",
+              se = FALSE,
+              color = "blue",
+              linetype = 2,
+              size = 1) 
+# Este estilo de grafico muestra la línea de regresión lineal se dibuja en azul, con un estilo de línea discontinua y sin la banda de confianza,
+
+```
+
+##Experimento factorial
+
+En un diseño experimental en el que se estudian los efectos de dos o más factores simultáneamente. Cada factor tiene dos o más niveles, y se consideran todas las posibles combinaciones de estos niveles. Este tipo de diseño permite investigar no solo los efectos individuales de cada factor (efectos principales) sino también las interacciones entre los factores
+
+```{r}
+milho <- read_excel ("dados-diversos.xlsx", 10)
+
+milho |> ggplot (aes(method, index, color = method))+
+  geom_jitter(width = 0.1)+
+  facet_wrap(~ hybrid) #Crea una cuadrícula de gráficos (facetas) donde cada gráfico representa un subconjunto de datos basado en los niveles de la variable hybrid. Cada faceta mostrará los datos correspondientes a un nivel de hybrid.
+```
+
+## Histogramas
+
+Un histograma es una representación gráfica de la distribución de un conjunto de datos numéricos. Se utiliza para mostrar la frecuencia con la que ocurren los valores dentro de intervalos específicos (o "bins"). Es una herramienta importante en estadística para visualizar la distribución de los datos y entender su forma, dispersión y centralización.
+
+```{r}
+
+y <- milho |> 
+  ggplot(aes(x = yield))+
+  geom_histogram(bins = 10,
+                 color = "black", fill = "green")
+
+i <- milho |> 
+  ggplot(aes(x = index))+
+  geom_histogram(bins = 10,
+                 color = "black", fill = "green")
+
+library(patchwork)
+library (ggplot2)
+(y + i) +
+  plot_annotation(tag_levels = "A")
+ ggsave("figs/histograms.png", bg = "white")
+```
+
+```{r}
+library(patchwork)
+
+(y | i) +
+plot_annotation(tag_levels = "A",
+                title = "Corn = yield and index",
+                subtitle = "Source: Em Del Ponte")
+
+ggsave ("figuras/milho.png", bg = "white",
+         width = 6, 
+        height = 4)
+```
+
+##Grafico de densidad
+
+```{r}
+milho |> 
+  ggplot(aes(x = yield))+
+  geom_density()
+```
+
+```{r}
+library (readxl)
+library (tidyverse)
+insect <- read_excel("dados-diversos.xlsx",
+                   "mortalidade")
+insect |> 
+  pivot_longer(2:3, 
+               names_to = "status",
+               values_to = "value") |> 
+  ggplot(aes(inseticida, value, 
+             fill = status))+
+  geom_col()
+  
+
+```

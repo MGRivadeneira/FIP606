@@ -1,0 +1,81 @@
+---
+title: "Comandos básicos para iniciar R"
+output: html_document
+---
+
+##Cargando datos en el ambiente Como rutina en el análisis de datos, uno de los primeros pasos es crear, cargar o importar el conjunto de datos en el entorno R. El formato más utilizado para almacenar datos en varias columnas es el marco de datos. Existen varias formas de cargar datos y crear marcos de datos, dependiendo del tamaño del conjunto y del formato disponible. A menudo, sólo queremos crear conjuntos de secuencias o números, lo que puede hacerse con las funciones básicas que ya hemos visto, sin necesidad de cargar un fichero externo. Los datos suelen organizarse en hojas de cálculo, que deben importarse al entorno. A continuación se presentarán las formas más comunes de introducir datos en R para su análisis.
+
+##Primer Paso: Instalación de R y RStudio
+
+1.  Instalación de R R es el lenguaje y entorno de software que necesitas para llevar a cabo análisis estadísticos. Para comenzar, debes instalar R en tu computadora:
+
+```{=html}
+<!-- -->
+```
+a.  Descargar R:
+
+Visita el sitio web oficial del Proyecto R: CRAN (The Comprehensive R Archive Network). Selecciona el enlace de descarga correspondiente a tu sistema operativo (Windows, macOS o Linux).
+
+b.  Descargar RStudio:
+
+Visita el sitio web oficial de RStudio: RStudio. Selecciona la versión gratuita de RStudio Desktop correspondiente a tu sistema operativo.
+
+##Link para instalacion de R y de R Studio (https://posit.co/download/rstudio-desktop/)
+
+Instalación de paquetes puede ser hecha a traves de menu: Tools \> Install packages..., o tambien por:
+
+```{r}
+#install.packages(nombre del paquete de interes )
+```
+
+## Carga de paquetes
+
+Después de la instalación, puede cargar los paquetes utilizando la opción "packages", debe introductir el nombre del programa de interés en la barra de búsqueda y luego seleccionar o puede utilizar el comando "library". *Importante* recordar que antes de iniciar cualquier trabajo en R, es necesario cargar los paquetes de interés.
+
+```{r}
+library(tidyverse)
+library(remotes)
+```
+
+## Remocion de mensajes de alerta
+
+La eliminación de los mensajes de advertencia que emiten algunos paquetes facilita la visualización de la información.
+
+```{r}
+warning(FALSE)
+```
+
+## Invocar la función de un paquete
+
+Después de cargar el paquete de interés, se puede traer información de hojas de cálculo externas a R. A continuación se muestra un ejemplo:
+
+Si los datos con los que se va a trabajar están dispuestos en una Hoja de Google, entonces es necesario instalar un paquete que pueda trabajar con este tipo de hojas de cálculo. Así que como primer paso, instalo y cargo este paquete.
+
+```{r}
+
+## Cargamento de planillas de Google Sheet
+
+library(gsheet)
+```
+
+Después de cargar el paquete, se le da un nombre a mi ensamblado y se le asigna una función. (La asignación de funciones viene dada por "\<-"). En este caso, el conjunto se llamó "d" y la función asignada fue "gsheet2tbl", que pertenece al paquete "gsheet". Entre paréntesis y comillas, el enlace a la hoja de cálculo disponible en Google Sheet.
+
+```{r}
+d <- gsheet2tbl ("docs.google.com/spreadsheets/d/1I9mJsS5QnXF2TNNntTy-HrcdHmIF9wJ8ONYvEJTXSNo")
+
+dplyr::arrange(d, mpg)
+
+#dplyr, es una función del paquete Tidyverse previamente cargada, seguida de ":: arrange", que cambió el orden de las filas de mi tabla. Puso los datos en orden ascendente, mejorando la visualización.
+
+```
+
+## Instalar paquetes desde GitHub
+
+R utiliza CRAN como base para la instalación de paquetes, pero es posible que durante el desarrollo del trabajo se necesite un paquete de una base externa, como GitHub. Para obtener el paquete de interés en R, se siguen los siguientes pasos:
+
+```{r}
+
+#install_github("nombre del usuario de GitHub/nombre del paquete de interes")
+
+
+```

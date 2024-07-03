@@ -1,0 +1,5 @@
+"0",""
+"0","library(readxl)# carga el paquete en el ambiente"
+"0","df1 <- read_excel(""dados-diversos.xlsx"") # lectura con funcion read_excel creando el data frame df1"
+"0","df2<- read_excel(""dados-diversos.xlsx"", sheet = ""escala"") #lectura especifica de la hoja de trabajo en excel denominada *escala*"
+"0","df2"

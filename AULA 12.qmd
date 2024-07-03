@@ -1,0 +1,134 @@
+---
+title: "ANOVA con bloques (DBC)"
+format: html
+editor: visual
+---
+
+```{r}
+warning(FALSE)
+
+library(readxl)
+library(tidyverse)
+
+fungicidas <- read_excel("dados-diversos.xlsx", "fungicida_campo")
+```
+
+## Delineamiento de bloques aleatorizados
+
+El diseño de bloques aleatorizados (DBC) implica los tres principios de la experimentación: repetición, aleatorización y control local. En este caso, las condiciones locales no son homogéneas y pueden tener un efecto significativo en los tratamientos.
+
+Con la siguiente base de datos es posible realizar un análisis de la varianza (ANOVA) y comprobar las hipótesis sobre los tratamientos y los bloques.
+
+```{r}
+aov_fung <- aov(sev~trat+rep,data=
+                  fungicidas)
+summary(aov_fung)
+
+# Mismo sin significancia el bloque debe permanecer, por que el experimento fue montado en bloques.
+```
+
+Revisando las premisas y comparando las medias
+
+```{r}
+library(performance)
+library(DHARMa)
+
+check_normality(aov_fung)
+```
+
+```{r}
+check_heteroscedasticity(aov_fung)
+```
+
+```{r}
+plot(simulateResiduals(aov_fung))
+```
+
+```{r}
+library(emmeans)
+library(multcomp)
+library(multcompView)
+
+
+means_fung <- emmeans(aov_fung, ~trat)
+
+cld(means_fung)
+
+plot(means_fung)+
+  coord_flip()+
+  theme_minimal()
+
+```
+
+### Trabajando con parcelas y subparcelas
+
+```{r}
+#Los hibridos son mi parcela, el método es mi subparcela 
+
+milho <- read_excel("dados-diversos.xlsx", "milho")
+
+aov_milho_bloco <- aov(index~factor(block)+hybrid*method+
+                         Error(factor(block)/hybrid/method), data=milho)
+
+# Metodo esta dentro del híbrido, y los hibridos estan dentro del bloque.
+
+summary(aov_milho_bloco)
+
+```
+
+## Actualizando los bloques para los factores
+
+### Paquete "lme4"
+
+Ajuste de modelos lineales y lineales generalizados de efectos mixtos. Los modelos y sus componentes se representan mediante clases y métodos S4.
+
+### Función "lmer"
+
+Generar un componente aleatorio específico para cada individuo, de forma que podamos tener un intercepto y una pendiente diferentes para cada uno.
+
+```{r}
+library(lme4)
+
+
+milho$block <- as.factor(milho$block)
+mix2 <- lmer(index~block+hybrid*method+
+               (1|block/hybrid), data=milho)
+anova(mix2)
+check_normality(mix2)
+check_heteroscedasticity(mix2)
+
+#anova com letra "a" não aparece p valor.
+```
+
+```{r}
+#Anova con "A" es otra función - ésta muestra el valor p - asociada al paquete "car"
+milho$block <- as.factor(milho$block)
+mix2 <- lmer(index~block+hybrid*method+
+               (1|block/hybrid), data=milho)
+library(car)
+Anova(mix2)
+check_normality(mix2)
+check_heteroscedasticity(mix2)
+```
+
+```{r}
+milho$block <- as.factor(milho$block)
+mix2 <- lmer(sqrt(index)~block+hybrid*method+
+               (1|block/hybrid), data=milho)
+library(car)
+Anova(mix2)
+check_normality(mix2)
+check_heteroscedasticity(mix2)
+```
+
+```{r}
+means_mix2 <- emmeans (mix2, ~hybrid|method)
+means_mix2
+cld(means_mix2)
+```
+
+```{r}
+means_mix2 <- emmeans (mix2, ~method|hybrid)
+means_mix2
+cld(means_mix2)
+```

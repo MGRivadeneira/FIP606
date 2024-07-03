@@ -1,0 +1,137 @@
+---
+title: "Importación de datos"
+format: html
+editor: visual
+---
+
+Los datos con los que se trabajará en R pueden provenir de diversas bases de datos, a continuación te mostraremos las formas de importar información de algunas de estas bases de datos.
+
+## Desde paquetes R
+
+El propio R tiene una base de datos y se puede importar y trabajar con esta información. A continuación se muestra el conjunto de datos llamado "cars".
+
+```{r}
+cars
+cars2 <- cars
+speed <- cars2$speed
+speed
+
+#Atribuyendo "cars" a "cars2" se creo un data frame, que es de donde el trabajo comenzara 
+
+```
+
+*Cargar datos directos o importar datos al ambiente R* en varias columnas o en data frame, es importante tomar en cuenta el tamaño del conjunto y el formato disponible de los datos
+
+## Alternativa 1: *Usando el argumento text*, usted puede cargar rapidamente datos del ambiente por medio del argumento *text*. Copiar *(ctrl + c)* los datos de una planilla y pegar *(ctrl + v)*
+
+*Importante*La h en la función read.table se refiere al argumento header, y cuando se escribe h=T o header=TRUE, se está indicando que la primera fila de los datos contiene los nombres de las columnas. Esto es útil cuando los datos tienen una fila de encabezado que describe el contenido de cada columna.
+
+*Ejemplo 1*: Escribir entre comillas los datos, despues del argumento text, de la función read.table . Cada columna sera definida una vez que tenga espacio entre los elementos. Puede ser util para criar conjuntos pequeños de datos. Creación del conjunto survey desde una tabla de datos
+
+```{r}
+survey <- read.table (h=T, text="
+campo  año severidade
+25  2010 3
+25  2010 4
+25  2010 10
+25  2010 23
+25  2010 34
+26  2010 2
+26  2010 4
+26  2010 5
+")
+# survey: Es el nombre del data frame en el que se almacenarán los datos leídos
+# read.table: Es la función que lee el archivo de texto.
+# header=TRUE: Indica que la primera fila del archivo contiene los nombres de las columnas
+#text="...": Proporciona directamente los datos como una cadena de texto en lugar de un archivo separado.
+
+##Verificar la estructura del conjunto creado con la funcion str 
+
+str (survey)
+```
+
+Alternativa 2 *Importando datos de excel*
+
+Usualmente la mayoria del conjunto datos son creados en planillas electronicas y guardados en extensiones de excel como xls o xlsx. Algunos paquetes permiten importar archivos de excel. Entre esas funciones se destaca *read_excel* del paquete *readxl*
+
+*Ejemplo 2*: De nuestra carpeta de archivos, importamos el archivo *dados-diversos.xlsx* y atribuir el data frame a *df1*. ES IMPORTANTE recordar que se debe incluir el camino del archivo caso el no se encuentre en el mismo directorio donde esta guardado el archivo .r o .rmd. Seleccionar los datos especificos de un conjunto de datos en .xlsx con diferentes *sheet* seleccionando los datos *escala*
+
+```{r}
+
+library(readxl)# carga el paquete en el ambiente
+df1 <- read_excel("dados-diversos.xlsx") # lectura con funcion read_excel creando el data frame df1
+df2<- read_excel("dados-diversos.xlsx", sheet = "escala") #lectura especifica de la hoja de trabajo en excel denominada *escala*
+df2
+
+```
+
+Datos en otros archivos La disponibilidad de los datos puede estar en otros formatos como csv (comma separated values) o txt (texto). Estos archivos también pueden ser guardados en estos formatos, a partir de una planilla electronica ya elaborada.
+
+*Ejemplo 3*: Vamos a utilizar la funcion read_csv del paquete readr.
+
+```{r}
+library(readr) # cargar el paquete
+df3 <- read_csv("dados-diversos.csv") # importar el arquivo csv
+df3
+```
+
+Datos en paquetes del programa R #En R vienen archivos de datos ya cargados en la inicialiazacion del programa, bastando apenas entrar con el nombre del archivo para atribuir los datos a un dataframe. La funcion *data ()* muestra todos los archivos de datos y una breve descripcion. Puede visualizarlo con el nombre del archivo.
+
+*Ejemplo 4*: vamos a cargar el conjunto de datos de *Orange*. El conjunto de datos no es cargado en el ambiente, mas es descrito. Además, generalmente los paquetes poseen datos para demostrar el uso de sus funciones. Vamos a cargar el paquete *agricolae* y visualizar el conjunto de datos con el nombre de *ralstonia*.
+
+```{r}
+data ()
+head(Orange)  # head en R se utiliza para mostrar las primeras filas de un data frame
+
+library(agricolae)
+data(ralstonia) # el conjunto ralstonia fue cargado al ambiente 
+
+```
+
+```{r}
+library (gsheet)
+
+df4<-gsheet2tbl("https://docs.google.com/spreadsheets/d/1bq2N19DcZdtax2fQW9OHSGMR0X2__Z9T/edit#gid=983033137")
+df4
+```
+
+
+```{r}
+library(ggplot2)
+g1<- df4 |> 
+  ggplot (aes (trat, comp))+
+  geom_point()
+g1
+
+```
+
+
+```{r}
+g2<-df4 |>
+  ggplot(aes(trat,comp))+
+  geom_boxplot()+
+  geom_jitter(width = 0.05,
+              color = "red",
+              shape = 2, 
+              size = 3)
+g2
+```
+
+
+```{r}
+g3<-df4 |>
+  ggplot(aes(trat, comp))+
+  geom_boxplot(outlier.colour = NA, fill = "orange")+
+  geom_jitter(width = 0.05, color= "red", size = 2)+
+  theme_classic()+
+  labs(x="tratamento",
+       y= "comprimento (mm)",
+       title = "Meu primeiro ggplot",
+       caption = "Fonte: Dados diversos")+
+  scale_y_continuous(limits = c(0,20),
+                     n.breaks =10)
+                     
+
+g3
+
+```

@@ -1,0 +1,218 @@
+---
+title: "ANOVA factor I, Test de Normalidad y Homostacidad, Test no parametrico"
+format: html
+editor: visual
+---
+
+## Anova factor I
+
+El análisis de la varianza, o ANOVA, es un análisis estadístico para determinar la contribución de los distintos factores a la varianza total de un experimento.
+
+El análisis de varianza de factor I, o ANOVA simple, es unilevado. Es adecuado para experimentos con una sola variable independiente en dos o más niveles.
+
+**Análisis exploratorio**. previo al análisis estadístico, es importante, realizar un análisis visual. Este análisis permite extraer algunas conclusiones como un patron de distribución de los datos, si son vusualmante normales o si estan agrupados de alguna manera
+
+Iniciamos nuestro analisis exploratorio
+
+```{r}
+library (readxl)
+library (tidyverse)
+
+micelial <- read_excel("dados-diversos.xlsx", "micelial")
+
+micelial |> 
+  ggplot(aes(especie, tcm))+
+  geom_boxplot()
+```
+
+Una vez realizado este análisis visual, ya sea con boxplots, histogramas, columnas, dispersión... pasamos a la aplicación del ANOVA factor I.
+
+```{r}
+aov1 <- aov(tcm ~ especie, data = micelial)
+summary (aov1)
+```
+
+## Test de Normalidad y Homoscedasticidad
+
+### Test de Normalidad
+
+El supuesto de normalidad de los datos de la muestra es una condición necesaria para realizar muchas inferencias válidas sobre los parámetros de la población. Varios de los distintos métodos de estimación y pruebas de hipótesis existentes se han formulado bajo el supuesto de que la muestra aleatoria se ha extraído de una población gaussiana.
+
+### Test de homocedasticidad
+
+En el análisis de la varianza (ANOVA), hay un supuesto que debe cumplirse, y es que los errores tienen una varianza común, es decir, homocedasticidad. Esto implica que cada tratamiento comparado por la prueba F debe tener aproximadamente la misma varianza para que el ANOVA sea válido. Cuando no se cumple este supuesto, decimos que las varianzas no son homogéneas, o que hay heteroscedasticidad.
+
+```{r}
+#Premisas
+
+library (performance)
+
+check_heteroscedasticity(aov1)
+check_normality(aov1)
+
+#Test de Normalidad
+
+hist(aov1$residuals) 
+#Permite ver la curva de distribución de los datos, confirmando lo obtenido en las pruebas anteriores: distribución normal.
+
+shapiro.test(aov1$residuals)
+```
+
+Otra forma de comprobar si una muestra sigue la distribución gaussiana es mediante las gráficas de la rango de probabilidad normal y su rango con intervalo de confianza simulado.
+
+Podemos hacerlo utilizando las funciones "qqnorm()" y "qqline" sin la envolvente:
+
+```{r}
+qqnorm(aov1$residuals)
+qqline(aov1$residuals)
+```
+
+O con un con un rango con el paquete "DHARMa" y la función "plot():
+
+```{r}
+library (DHARMa) #evaluar y diagnosticar el ajuste de modelos de regresión complejos
+plot(simulateResiduals(aov1))
+```
+
+Es posible encontar casos como el siguiente:
+
+```{r}
+InsectSprays
+
+insects <- as_tibble(InsectSprays) |> 
+  select (spray, count)
+
+insects |> 
+  ggplot(aes(spray, count))+
+  geom_boxplot()
+```
+
+Tras el análisis exploratorio, nos dimos cuenta de que los datos tenían una distribución ligeramente diferente. Entonces aplicamos el ANOVA para comprobar los supuestos.
+
+```{r}
+aov2 <- aov(count ~ spray, data = insects)
+summary (aov2)
+
+check_heteroscedasticity(aov2)
+check_normality(aov2)
+```
+
+Una vez hecho esto, vemos que los datos no muestran una distribución normal y son heteroscedásticos. Una de las alternativas que tenemos para trabajar con este conjunto es la transformación. En este caso, utilizaremos la transformación raíz (sqrt), pero R tiene varias transformaciones posibles. Las transformaciones se hacen por ensayo y error, hasta que una de ellas cumple lo que necesitas.
+
+```{r}
+aov3 <- aov(sqrt(count) ~ spray, data = insects)
+summary (aov3)
+
+check_heteroscedasticity(aov3)
+check_normality(aov3)
+
+#Los datos transformados son normales y homocedásticos.
+
+#Test de Normalidad
+
+hist(aov3$residuals)
+shapiro.test(aov3$residuals)
+
+#Gráficos para distribucion gaussiana
+qqnorm(aov3$residuals)
+qqline(aov3$residuals)
+
+```
+
+### Paquete "emmeans"
+
+Calcular medias marginales estimadas (EMMs) para factores específicos o combinaciones de factores en un modelo lineal; y opcionalmente, comparaciones o contrastes entre ellos. Las EMM también se conocen como medias de mínimos cuadrados.
+
+```{r}
+library (emmeans)
+
+aov3_means <- emmeans(aov3, ~ spray,
+                       type = "response")
+aov3_means
+```
+
+```{r}
+pwpm(aov3_means)
+```
+
+### Paquete "multcomp"
+
+Pruebas simultáneas e intervalos de confianza para hipótesis lineales generales en modelos paramétricos, incluidos modelos lineales, lineales generalizados, lineales de efectos mixtos y de supervivencia.
+
+### Paquete "multcompView"
+
+Convierta un vector lógico o un vector de valores p o una matriz de correlación, diferencia o distancia en una visualización que identifique los pares para los que las diferencias no fueron significativamente diferentes.
+
+### cld
+
+Extrae y muestra información sobre todas las comparaciones de medias por mínimos cuadrados pareados.
+
+```{r}
+
+library (multcomp)
+library (multcompView)
+cld(aov3_means)
+```
+
+## Test No Paramétrico
+
+Las pruebas no paramétricas, también conocidas como pruebas de distribución libre, son aquellas que se basan en determinadas hipótesis, pero que no tienen una organización normal. Suelen contener resultados estadísticos a partir de sus ordenaciones, lo que facilita su comprensión.
+
+### Test de Kruskal-Wallis
+
+La prueba de Kruskal-Wallis se utiliza en situaciones en las que queremos comparar más de dos grupos independientes, de igual tamaño o no, con una variable de respuesta cuantitativa. La prueba es una alternativa cuando no se cumplen los supuestos exigidos por la prueba F del análisis de la varianza, ya que la prueba de Kruskal-Wallis prescinde del supuesto de normalidad y homocedasticidad.
+
+```{r}
+kruskal.test(count ~spray, data = insects)
+
+library (agricolae)
+
+kruskal(insects$count, insects$spray,
+        console = TRUE)
+
+```
+
+### glm
+
+Se utiliza para ajustar modelos lineales generalizados, especificados mediante una descripción simbólica del predictor lineal y una descripción de la distribución de errores, son una extensión de los modelos de regresión lineal que permiten a la variable de respuesta siga una distribución diferente de la normal y se relacione con las variables explicativas a traves de la función de enlace
+
+### Família
+
+Los objetos de familia proporcionan una forma cómoda de especificar los detalles de los modelos utilizados por funciones como "glm".
+
+```{r}
+glm1 <- glm(count ~ spray,
+            data = insects,
+            family = poisson(link = "identity"))
+```
+
+Visualización gráfica y comparación de medias.
+
+```{r}
+library (DHARMa)
+plot(simulateResiduals(glm1))
+summary(glm1)
+
+glml_means <- emmeans(glm1, ~ spray)
+cld(glml_means)
+```
+
+## Transformación BoxCox
+
+La transformación de Box-Cox es una transformación potencial que elimina la no linealidad entre variables, las diferentes varianzas y la asimetría de las variables. La función boxcox del paquete MASS en R puede utilizarse para estimar el parámetro de transformación utilizando la estimación de máxima verosimilitud. Debe calcular un modelo lineal con la función lm y pasarlo a la función boxcox para determinar la "lambda" adecuada.
+
+La elección del valor de 𝜆es crucial y generalmente se determina mediante un procedimiento de máxima verosimilitud que busca el valor de 𝜆que maximiza la normalidad de los datos transformados y la homocedasticidad de los residuos en un modelo de regresión.
+
+```{r}
+library (MASS)
+insects
+b <- boxcox (lm(insects$count+0.1 ~ 1))
+
+lambda <- b$x[which.max(b$y)]
+lambda
+
+#La línea vertical discontinua del centro representa el parámetro estimado lambda hat.
+
+insects$count2 <- (insects$count ^ lambda - 1) / lambda
+insects$count
+```

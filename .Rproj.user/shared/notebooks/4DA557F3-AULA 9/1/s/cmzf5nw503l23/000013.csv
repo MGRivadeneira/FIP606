@@ -1,0 +1,5 @@
+"0","escala |>"
+"0","  gather(component, statistics, 3:7) |> # formato ancho"
+"0","  ggplot(aes(reorder(assessment, statistics), statistics)) +"
+"0","  geom_jitter(width = 0.05) +"
+"0","  facet_wrap(~component, scales = ""free_y"")"

@@ -1,0 +1,152 @@
+---
+title: "ANOVA FACTORIAL"
+format: html
+editor: visual
+---
+
+## ANOVA factorial
+
+El ANOVA factorial se utiliza cuando tenemos dos o más variables independientes y cada uno de estos factores puede tener varios niveles. El ANOVA factorial sólo puede utilizarse en el caso de un experimento factorial completo, en el que se utilizan todas las permutaciones posibles de factores y sus niveles. Este ANOVA no sólo mide la variable independiente frente a la variable independiente, sino también si los dos factores se afectan mutuamente.
+
+```{r}
+
+# Analisis exploratorio
+
+library(readxl)
+library(tidyverse)
+
+dat <- read_excel("dados-diversos.xlsx", "fungicida_vaso")
+
+dat2 <- dat |> 
+  mutate(inc = dis_sp/n_sp*100)
+
+# mutate()crea nuevas columnas que son funciones de variables existentes. Esta función también puede modificar (si el nombre es el mismo que el de una columna existente) y eliminar columnas (estableciendo su valor en NULL).
+
+dat2 |> 
+  ggplot(aes(x=treat,
+             y=inc)) +
+  geom_jitter(width = 0.1) +
+  facet_wrap(~ dose)
+
+```
+
+Aplicación de ANOVA
+
+```{r}
+m1 <- aov(inc ~ treat*dose,
+          data = dat2)
+summary(m1)
+
+library(performance)
+check_normality(m1)
+check_heteroscedasticity(m1)
+
+library(DHARMa)
+plot(simulateResiduals(m1))
+
+```
+
+Segun el ANOVA realizado, los datos no mostraban normalidad ni homocedasticidad, así que realizamos una transformación de los datos.
+
+```{r}
+m2 <- aov(log(inc+0.5) ~ treat*dose,
+          data = dat2)
+
+library(performance)
+check_normality(m2)
+check_heteroscedasticity(m2)
+
+library(DHARMa)
+plot(simulateResiduals(m2))
+```
+
+"Response" me permite trabajar en mis datos sin transformación.Utilizo esta función para btener predicciones en la escala de la variable de respuesta. Esto es especialmente relevante para modelos donde la relación entre las variables independientes y la respuesta no es lineal.
+
+```{r}
+
+# Comparación de medias "Tratamiento en función a dosis"
+
+library(emmeans)
+means_m2 <- emmeans (m2, ~treat|dose,
+                     type="response")
+means_m2
+
+library(multcomp)
+library(multcompView)
+cld(means_m2)
+
+```
+
+```{r}
+# Comparación de medias "Dosis en función del tratamiento"
+
+library(emmeans)
+means_m2 <- emmeans (m2, ~dose|treat,
+                     type="response")
+means_m2
+
+library(multcomp)
+library(multcompView)
+cld(means_m2)
+```
+
+### cv.model
+
+Se refiere generalmente al modelo de validación cruzada (cross-validation model), es una técnica que implica dividir el conjunto de datos en múltiples subconjuntos, entrenando el modelo en algunos de estos subconjuntos y validando su desempeño en los subconjuntos restantes. Obtenemos un coeficiente de variacion del experimento obtenido pelos modelos lm () ou aov()
+
+```{r}
+library(agricolae)
+cv.model(m2)
+```
+
+Otro exemplo:
+
+```{r}
+milho <- read_excel("dados-diversos.xlsx", "armazena")
+milho |> 
+  filter(tempo==8) |> 
+  ggplot(aes(factor(tipo),
+             peso_mil,
+             color=factor(umidade)))+
+  geom_jitter(width = 0.1)+
+  facet_wrap(~umidade)
+```
+
+```{r}
+milho2 <- milho |> 
+  filter(tempo==8)
+
+m2 <- aov(peso_mil~factor(tipo)
+          *factor(umidade), 
+          data=milho2)
+summary(m2)
+          
+```
+
+```{r}
+milho3 <- read_excel("dados-diversos.xlsx", "milho")
+
+m4 <- aov(yield~hybrid*method,
+          data=milho3)
+summary(m4)
+plot(simulateResiduals(m4))
+
+```
+
+### pwpm
+
+Esta función presenta los resultados de "emmeans" y las comparaciones por pares de forma compacta. Muestra una matriz (o matrices) de estimaciones, diferencias emparejadas y valores P.
+
+```{r}
+milho3 <- read_excel("dados-diversos.xlsx", "milho")
+
+m4 <- aov(yield~hybrid,
+          data=milho3)
+summary(m4)
+check_heteroscedasticity(m4)
+medias_m4 <- emmeans(m4,~hybrid)
+medias_m4
+cld(medias_m4)
+pwpm(medias_m4)
+pwpp(medias_m4)
+```

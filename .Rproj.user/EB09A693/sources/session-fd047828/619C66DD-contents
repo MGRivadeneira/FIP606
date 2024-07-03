@@ -1,0 +1,100 @@
+---
+title: "Analisis de correlación"
+format: html
+editor: visual
+---
+
+Regresión lineal
+
+La regresión lineal es una técnica de análisis de datos que predice el valor de datos desconocidos utilizando otro valor de datos relacionado y conocido. Modela matemáticamente la variable desconocida o dependiente y la variable conocida o independiente como una ecuación lineal.
+
+```{r}
+library(readxl)
+library(tidyverse)
+estande <- read_excel("dados-diversos.xlsx", "estande")
+
+estande |> ggplot (aes(trat,nplants))+
+  geom_point()+
+  facet_wrap(~exp)+
+  ylim(0,max(estande$nplants))+
+  geom_smooth(se=F)
+
+
+```
+
+"group_by": seleciona las variables de interes
+
+```{r}
+estande2 <- estande |> 
+  filter(exp ==2) |> 
+  group_by(trat) |> 
+  summarise(mean_nplants =
+              mean(nplants))
+estande2 |> ggplot(aes(trat, mean_nplants))+
+  geom_point()+
+  #geom_line()+
+  geom_smooth(se = F,formula = y ~ poly(x,2), method = "lm")+
+  annotate (geom ="text",
+           x=25, y=70,
+           label= "y=66.3 - 1.777x + //////0.0222x
+           R² = 0.88")
+
+```
+
+#R² - coeficiente de determinação (regressão linear)
+
+Akaike Information Criterion (AIC)
+
+Permite comprobar hasta qué punto el modelo se ajusta al conjunto de datos sin sobreajustarlo. La puntuación AIC recompensa a los modelos que alcanzan una alta calidad de ajuste y los penaliza si se vuelven demasiado complejos. Por sí sola, la puntuación AIC no es muy útil a menos que se compare con la puntuación AIC de un modelo competidor. Se espera que el modelo con la puntuación AIC más baja logre un mejor equilibrio entre su capacidad para ajustarse al conjunto de datos y su capacidad para evitar un ajuste excesivo al conjunto de datos.
+
+```{r}
+
+estande2 <- estande2 |> 
+  mutate(trat2=trat^2)
+
+m1 <- lm(mean_nplants ~ trat,
+         data=estande2)
+summary(m1)
+hist(m1$residuals)
+
+m2 <- lm(mean_nplants ~trat + trat2,
+         data = estande2)
+summary(m2)
+
+AIC(m1,m2)
+
+```
+
+##Dos variables resposta
+
+Relación con dos variables de respuesta - prueba de asociación; Análisis de correlación - coeficiente de correlación (coeficiente de Pearson);R siempre es mayor que R².
+
+##Coeficiente de Pearson
+
+El coeficiente de correlación de Pearson es una prueba que mide la relación estadística entre dos variables continuas. Si la asociación entre los elementos no es lineal, el coeficiente no se representará correctamente.
+
+```{r}
+
+mofo<- read_excel("dados-diversos.xlsx", "mofo")
+
+mofo |>
+  ggplot(aes(inc, yld))+
+  geom_point()+
+  geom_smooth(se=F, method= "lm")+
+  facet_wrap(~study)
+
+
+```
+
+```{r}
+mofo1 <- mofo |> 
+  filter(study == 3)
+mofo1
+shapiro.test(mofo1$yld)
+
+cor.test(mofo1$inc, mofo1$yld)
+pcor <- cor(mofo1 |>  select(3:5), method = "spearman")
+library(corrplot)
+corrplot(pcor, method = 'number', type = "lower")
+
+```

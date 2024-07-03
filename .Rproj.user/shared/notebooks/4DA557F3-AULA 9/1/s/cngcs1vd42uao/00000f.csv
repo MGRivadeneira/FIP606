@@ -1,0 +1,5 @@
+"0","ggplot(escala4, aes(assessment, mu)) +"
+"0","  geom_point(stat = ""identity"", size = 4) +"
+"0","  geom_errorbar(aes(min = cil, max = ciu),"
+"0","    width = .05"
+"0","  )"

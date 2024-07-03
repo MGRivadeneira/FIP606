@@ -1,0 +1,8 @@
+"0","g2<-df4 |>"
+"0","  ggplot(aes(trat,comp))+"
+"0","  geom_boxplot()+"
+"0","  geom_jitter(width = 0.05,"
+"0","              color = ""red"","
+"0","              shape = 2, "
+"0","              size = 3)"
+"0","g2"

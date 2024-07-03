@@ -1,0 +1,6 @@
+"0","magnesio3 %>%"
+"0","  ggplot(aes(trat, mu, color = trat)) +"
+"0","  geom_point(size = 3) +"
+"0","  ylim(7,20)+"
+"0","  geom_errorbar(aes(min = cil, max = ciu), width = 0.05, size = 1) +"
+"0","  labs(x = ""Tratamento"", y = ""Valor"", title = ""Magnesium effect on lesion expansion"")"
